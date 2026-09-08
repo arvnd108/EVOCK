@@ -137,7 +137,7 @@ new version. The original AI version is kept and stays independently verifiable
 | C | Capture / extraction fixtures authored by Role B from Role A's shapes. | Role A A7: re-checked field-for-field — exact. | **Resolved (`cff7c9b`)** |
 | D | `shared/types.js` authored solo by Role B in step 00 (shared-ownership). | Role A A7: reviewed and accepted. | **Resolved (`cff7c9b`)** |
 | E | Step 11: `current_integrity` + `contact_label` added post-freeze. | Purely additive; land as one small PR that Role A and Role C approve. | **Open — group PR** |
-| F | Step 12: `versions[]` schema 1.1; worker route `MSG.REVISE_METADATA` + `GET_EVIDENCE` widening needed. | Additive schema, no migration. Worker diff below — depends on Role C's `messages.js` (`REVISE_METADATA`) landing. | **Open — group PR with Role C step 06** |
+| F | Step 12: `versions[]` schema 1.1; worker route `MSG.REVISE_METADATA` + `GET_EVIDENCE` widening needed. | Additive schema, no migration. Step 12 merged (PR #5); Role C step 06 merged (PR #6); worker route + `GET_EVIDENCE.versions` applied to `service-worker.js` with Role A. | **Resolved (`feat/role-a/revise-metadata-route`)** |
 
 ---
 
@@ -240,25 +240,25 @@ scope for the MVP; tracked here.
 ## 7. Outstanding
 
 - Land step-11 (`current_integrity`, `contact_label`) — deviation E. **Merged in PR #3/#4.**
-- Land step-12 (`versions[]`, `reviseMetadata`) alongside Role C step 06 — deviation F.
-- Apply the `service-worker.js` diff in §8 with Role A once `MSG.REVISE_METADATA` is on `main`.
+- Land step-12 (`versions[]`, `reviseMetadata`) alongside Role C step 06 — deviation F. **Merged in PR #5/#6.**
+- Apply the `service-worker.js` diff in §8 with Role A once `MSG.REVISE_METADATA` is on `main`. **Applied on `feat/role-a/revise-metadata-route` — see §8.**
 
-## 8. Proposed `service-worker.js` diff — step 12 (not yet applied)
+## 8. `service-worker.js` diff — step 12 (applied on `feat/role-a/revise-metadata-route`)
 
-Role A owns `background/service-worker.js`. `MSG.REVISE_METADATA` is defined on
-Role C's step-06 branch, not yet on `main`, so this cannot land on its own.
+Role A owns `background/service-worker.js`. Both dependencies are now on `main`
+(`MSG.REVISE_METADATA` — Role C step 06 / PR #6; `reviseMetadata` + `normalizeVersions`
+— Role B step 12 / PR #5), so this was applied as a Role A/B pair-work branch. It
+routes `REVISE_METADATA` to Role B's evidence core (the worker never signs) and
+widens `GET_EVIDENCE` with the version list Role C's detail panel reads.
 
 ```diff
 -import { lockEvidence, verifyEvidence } from "../evidence/index.js";
-+import { lockEvidence, verifyEvidence, reviseMetadata, normalizeVersions } from "../evidence/index.js";
-
-   // inside handleMessage(...)
-+  if (message?.type === MSG.REVISE_METADATA) {
-+    reviseMetadata(message.payload.evidence_id, message.payload.data, { note: message.payload.note })
-+      .then((record) => sendResponse({ ok: true, record }),
-+            (err) => sendResponse({ ok: false, error: err?.message || "Could not save the correction." }));
-+    return true;
-+  }
++import {
++  lockEvidence,
++  verifyEvidence,
++  reviseMetadata,
++  normalizeVersions
++} from "../evidence/index.js";
 
    // GET_EVIDENCE handler — widen the response:
    sendResponse({
@@ -267,7 +267,24 @@ Role C's step-06 branch, not yet on `main`, so this cannot land on its own.
      created_at: record.created_at,
      platform_label: record.platform_label,
      last_verification: record.last_verification,
-+    versions: normalizeVersions(record),   // Role C reads res.versions; absent -> single implicit version
-     screenshotDataUrl,
++    // Role C reads res.versions; a pre-1.1 record has none, so hand back the
++    // implicit single "ai" version rather than an absent key.
++    versions: normalizeVersions(record),
+     screenshotDataUrl: `data:...;base64,...`
    });
+
+   // handleMessage switch — new route:
++  case MSG.REVISE_METADATA:
++    reviseMetadata(message.payload?.evidence_id, message.payload?.data, {
++      note: message.payload?.note ?? null
++    }).then(
++      (record) => sendResponse({ ok: true, record }),
++      (err) =>
++        sendResponse({ ok: false, error: err?.message || "Could not save the correction." })
++    );
++    return true;
 ```
+
+Coverage: `tests/background/orchestrator.test.js` — `GET_EVIDENCE returns the record
+plus its version list`, `REVISE_METADATA routes to reviseMetadata and returns the
+updated record`, `REVISE_METADATA surfaces a failure as { ok: false, error }`.

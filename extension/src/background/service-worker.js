@@ -29,7 +29,12 @@ import {
   toFailedResult
 } from "../extraction/provider.js";
 import { MSG } from "../shared/messages.js";
-import { lockEvidence, verifyEvidence } from "../evidence/index.js";
+import {
+  lockEvidence,
+  verifyEvidence,
+  reviseMetadata,
+  normalizeVersions
+} from "../evidence/index.js";
 import * as vaultRepo from "../storage/vault-repo.js";
 import { bytesToBase64 } from "../crypto/hash.js";
 
@@ -330,6 +335,9 @@ export function handleMessage(message, _sender, sendResponse) {
           created_at: record.created_at,
           platform_label: record.platform_label,
           last_verification: record.last_verification,
+          // Role C reads res.versions; a pre-1.1 record has none, so hand back the
+          // implicit single "ai" version rather than an absent key.
+          versions: normalizeVersions(record),
           screenshotDataUrl: `data:${blob.type || "image/png"};base64,${bytesToBase64(bytes)}`
         });
       })().catch((err) =>
@@ -341,6 +349,19 @@ export function handleMessage(message, _sender, sendResponse) {
       verifyEvidence(message.payload?.evidence_id).then(
         (result) => sendResponse({ ok: true, result }),
         (err) => sendResponse({ ok: false, error: err?.message || "Verification failed." })
+      );
+      return true;
+
+    case MSG.REVISE_METADATA:
+      // Role C's review editor sends the corrected ai_derived_metadata.data.
+      // Role B re-canonicalizes / re-hashes / re-signs and appends a version —
+      // the worker only routes; it never touches the manifest itself.
+      reviseMetadata(message.payload?.evidence_id, message.payload?.data, {
+        note: message.payload?.note ?? null
+      }).then(
+        (record) => sendResponse({ ok: true, record }),
+        (err) =>
+          sendResponse({ ok: false, error: err?.message || "Could not save the correction." })
       );
       return true;
 
