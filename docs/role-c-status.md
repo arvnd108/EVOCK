@@ -7,7 +7,8 @@
 **Step 04 — Evidence detail view (C3, part 2):** complete.
 **Step 05 — Verification UI (C5):** complete.
 **Step 06 — Human review / edit of AI metadata (C4):** complete.
-**Tests:** `npm test` → 407 passing (+15 review). `python3 tests/run-tests.py` → 20/20.
+**Step 07 — Export: human-readable PDF + machine-readable package (C6):** complete.
+**Tests:** `npm test` → 468 passing (+43 export). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
 
 ## Contract items resolved by Role B
@@ -228,6 +229,15 @@ step 07: if bundling wins there, this step's Vite config (Tasks 2–3, skipped h
 then, with A and B in the loop. Until then, `dist/` is reserved in `.gitignore` and there is no
 `dev` / `build` script.
 
+**RESOLVED at step 07 — still no bundler.** `jspdf` / `jszip` are in `dependencies` for the
+test run, and their browser builds are **vendored** to `extension/src/vendor/`
+(`jspdf.umd.min.js`, `jszip.min.js`, ~510 KB) and loaded as classic `<script>` tags by
+`vault/vault.html`. Export generation runs **on the vault page**, not in the module service
+worker, so the classic-script path is all that is needed. The export builders read the library
+off `globalThis` through an injectable seam, so Vitest imports the npm package and never touches
+the vendored files. `extension/src/vendor/README.md` documents regeneration. If the import graph
+later forces a bundler, deleting the folder + two `<script>` tags is the whole rollback.
+
 ### Announced to
 
 Role A and Role B — noted here as the shared record; raise at the next sync so the "no
@@ -342,6 +352,62 @@ mirrors the latest version; `last_verification` resets to `null` on every revisi
 
 ---
 
+## Step 07 — Export: human-readable PDF + machine-readable package (C6)
+
+### Bundler decision (step-00 forcing function) — resolved: still no bundler
+
+`jspdf@4.2.1` + `jszip@3.10.1` are in `dependencies`. Their browser builds are **vendored** to
+`extension/src/vendor/` and loaded as classic `<script>` in `vault/vault.html`. Export runs on the
+vault page, so that is sufficient — a module service worker never needs the libraries. Builders
+resolve the library off `globalThis` via an injectable seam; Vitest imports the npm package
+instead. Verified in a browser: `window.jspdf.jsPDF` and `window.JSZip` are defined, and both
+builders produce valid output (PDF `%PDF-`, 4 pages, Limitations page; ZIP `PK`, all six entries).
+
+### Added
+
+| File | Notes |
+|---|---|
+| `extension/src/export/pdf-report.js` | `buildPdfReport({ record, verification, screenshotDataUrl }, { jsPDF })` → `{ bytes, text, pages }`. Every spec §19 field in order (`PDF_SECTIONS`); the four AI-derived fields carry an `[AI-derived]` marker + a misread note; "Device capture time" is never called "timestamp"; trusted-timestamp `not_configured` → "Not configured" plainly; **Limitations on its own final page** — `CAN_SHOW` (§27) + `CANNOT_ESTABLISH` (§27/§36), un-trimmed. `text` is the pre-wrap logical lines so tests can scan content/order/copy without a PDF parser. Filename `EVOCK-<id>-report.pdf`. |
+| `extension/src/export/package-zip.js` | `buildPackageZip({ record, verification }, { JSZip })` → `Uint8Array`. Six entries under `NK-XXXX/`: `manifest.json` = `canonicalize(reduceManifestForHashing(manifest))` (byte-identical to the vault's `manifest_hash` preimage — the test asserts equality), `screenshot.enc` (raw ciphertext via `toBytes`, handles ArrayBuffer / base64 / Uint8Array), `signature.sig`, `public-key.jwk`, `verification.json`, `README.txt`. Filename `EVOCK-<id>-package.zip`. |
+| `extension/src/export/verify-readme.txt.js` | `buildVerifyReadme({ evidence_id })` → the package README. Carries `HASHING_RECIPE` (the four Building Plan §5.3 lines, verbatim), the byte-level clarifications the one-liners leave implicit (32 raw digest bytes, P1363 r‖s signature, canonical-JSON definition), a Python `cryptography` worked example, the KEY HANDLING note (AES key not included, by design), and `CANNOT_ESTABLISH`. |
+| `extension/src/vault/components/export-controller.js` | The vault-page menu under **Export ▾**: two buttons (PDF / ZIP) + a status line. `chromeExportApi.getForExport` = one `GET_EVIDENCE { for_export: true }` round-trip; `chromeDownloader.save` = `Blob` → `chrome.downloads.download`. `busy` guard; failures surface in the status line, never throw; ZIP without ciphertext fails gracefully pointing at `Role A Prompts/13`. All seams injectable. |
+| `extension/src/vendor/{jspdf.umd.min.js,jszip.min.js,README.md,VERSIONS.txt}` | Vendored browser builds + provenance/regeneration notes. |
+| `tests/export/{pdf-report,package-zip,verify-readme,copy-audit,export-controller}.test.js` | 43 tests. PDF: real bytes, all 12 sections in order, AI-derived marks, full hashes, failed-extraction still renders + Limitations. ZIP: six entries, `manifest.json` byte-match, raw ciphertext, README recipe verbatim, `verification.json` round-trip. Copy audit: greps `admissib|proves|guarantee|locally|recover` across both PDF fixtures + README, every hit must sit in a negated sentence → zero bare hits. Controller: menu, PDF/ZIP download filenames + mime, graceful load failure, double-click guard. |
+
+### Changed
+
+- `background/service-worker.js` — `GET_EVIDENCE` returns `screenshot_ciphertext` / `iv` (base64)
+  **only when `payload.for_export === true`**. One small, additive change; the ZIP needs the raw
+  ciphertext and the decrypted data URL is not enough. Ratification + the worker-side alternative
+  are in `Role A Prompts/13`.
+- `shared/messages.js` — `MSG.GET_EVIDENCE` doc notes the `for_export` flag.
+- `vault/vault.html` — two vendored `<script>` tags before the module.
+- `vault/vault.js` — the bootstrap mounts an export controller under the review controller and
+  wires the detail panel's `onExport`.
+- `vault/vault.css` — `.nk-export*` classes.
+- Pre-existing lint tidied (correctness-only, step-00 precedent): 4 unused imports in
+  `tests/evidence/revise-metadata.test.js` (Role B step 12) and a `sort-imports` warning in
+  `service-worker.js`'s `evidence/index.js` import (Role A/B merge). `npm run lint` → 0/0 again.
+
+### Decisions / known limits
+
+- **Generation is page-side, not worker-side.** `MSG.EXPORT_PDF` / `MSG.EXPORT_PACKAGE` stay
+  defined but unused; `Role A Prompts/13` asks Role A to ratify or route them.
+- **The ZIP needs `for_export`.** Until Role A ratifies (or replaces) the `GET_EVIDENCE` change,
+  the PDF export works unchanged and the package export shows a plain "not yet" message.
+- **`canonicalize` is imported from `evidence/canonicalize.js` directly** (it is not on
+  `evidence/index.js`). `reduceManifestForHashing` comes from `index.js`. `Role A Prompts/13`
+  Task C suggests re-exporting `canonicalize` from the public surface.
+- **`jszip.min.js` contains one dead `new Function` branch** (its bundled `setImmediate`
+  polyfill's non-function fallback, never reached by JSZip's own calls). Not executed at load
+  time; confirm nothing trips it when the extension is loaded unpacked under MV3 CSP — a check for
+  the step-08 integration pass.
+- **Signature format in README:** the signature is over the 32 **raw** digest bytes (not the hex
+  ASCII) and is IEEE-P1363 r‖s (not DER) — the README spells both out beneath the verbatim recipe
+  so a stock-tools verifier does not stall.
+
+---
+
 ## Not yet started
 
-Steps 07–08: export, integration tests + copy audit.
+Step 08: integration tests + copy audit, `docs/demo-script.md`, README updates.

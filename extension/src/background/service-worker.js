@@ -31,9 +31,9 @@ import {
 import { MSG } from "../shared/messages.js";
 import {
   lockEvidence,
-  verifyEvidence,
+  normalizeVersions,
   reviseMetadata,
-  normalizeVersions
+  verifyEvidence
 } from "../evidence/index.js";
 import * as vaultRepo from "../storage/vault-repo.js";
 import { bytesToBase64 } from "../crypto/hash.js";
@@ -329,7 +329,7 @@ export function handleMessage(message, _sender, sendResponse) {
         // A data URL, not URL.createObjectURL — the latter is unavailable in an
         // MV3 service worker. Role C can drop this straight into an <img src>.
         const bytes = new Uint8Array(await blob.arrayBuffer());
-        sendResponse({
+        const response = {
           ok: true,
           manifest: record.manifest,
           created_at: record.created_at,
@@ -339,7 +339,15 @@ export function handleMessage(message, _sender, sendResponse) {
           // implicit single "ai" version rather than an absent key.
           versions: normalizeVersions(record),
           screenshotDataUrl: `data:${blob.type || "image/png"};base64,${bytesToBase64(bytes)}`
-        });
+        };
+        // Export needs the raw AES-GCM ciphertext + IV so the ZIP package can
+        // ship an inspectable integrity chain (Role C step 07 / C6). Only sent
+        // when the vault page asks for it — the plaintext key is never included.
+        if (message.payload?.for_export === true) {
+          response.screenshot_ciphertext = bytesToBase64(new Uint8Array(record.screenshot_ciphertext));
+          response.iv = bytesToBase64(new Uint8Array(record.iv));
+        }
+        sendResponse(response);
       })().catch((err) =>
         sendResponse({ ok: false, error: err?.message || "Could not load the record." })
       );

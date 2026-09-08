@@ -18,6 +18,7 @@ import { renderEmptyState } from "./components/empty-state.js";
 import { renderTimeline } from "./components/timeline.js";
 import { createReviewController } from "./components/review-editor.js";
 import { createVerifyPanel } from "./components/verify-panel.js";
+import { createExportController } from "./components/export-controller.js";
 
 /**
  * The production data seam: one round-trip to the service worker.
@@ -182,12 +183,20 @@ if (typeof document !== "undefined") {
         })
       : null;
 
+    const exporter = detailMount ? createExportController() : null;
+
     panel = detailMount
       ? createDetailPanel({
           onVerify: verify
             ? (id, manifest) => {
                 verify.run(id, { manifest });
                 verify.element.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            : undefined,
+          onExport: exporter
+            ? (id) => {
+                exporter.open(id);
+                exporter.element.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             : undefined,
           onEditMetadata: review
@@ -199,6 +208,7 @@ if (typeof document !== "undefined") {
           onClose: () => {
             verify?.close();
             review?.close();
+            exporter?.close();
           }
         })
       : null;
@@ -206,12 +216,14 @@ if (typeof document !== "undefined") {
     if (panel) detailMount.append(panel.element);
     if (verify) detailMount.append(verify.element);
     if (review) detailMount.append(review.element);
+    if (exporter) detailMount.append(exporter.element);
 
     initVault(auto, {
       onSelect: panel
         ? (id) => {
             verify?.close();
             review?.close();
+            exporter?.close();
             panel.show(id).then(
               () => panel.element.scrollIntoView({ behavior: "smooth", block: "start" }),
               (err) => {

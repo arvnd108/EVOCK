@@ -21,5 +21,9 @@
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "vitest": "^2"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1"
   }
 }
