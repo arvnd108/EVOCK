@@ -136,8 +136,8 @@ new version. The original AI version is kept and stays independently verifiable
 | B | `PRESERVE_STAGES` order did not match `lockEvidence`'s real emit order. | Role A A7: reordered to `capture, extract, hash, encrypt, sign, timestamp, store`. | **Resolved (`cff7c9b`)** |
 | C | Capture / extraction fixtures authored by Role B from Role A's shapes. | Role A A7: re-checked field-for-field — exact. | **Resolved (`cff7c9b`)** |
 | D | `shared/types.js` authored solo by Role B in step 00 (shared-ownership). | Role A A7: reviewed and accepted. | **Resolved (`cff7c9b`)** |
-| E | Step 11: `current_integrity` + `contact_label` added post-freeze. | Purely additive; land as one small PR that Role A and Role C approve. | **Open — group PR** |
-| F | Step 12: `versions[]` schema 1.1; worker route `MSG.REVISE_METADATA` + `GET_EVIDENCE` widening needed. | Additive schema, no migration. Step 12 merged (PR #5); Role C step 06 merged (PR #6); worker route + `GET_EVIDENCE.versions` applied to `service-worker.js` with Role A. | **Resolved (`feat/role-a/revise-metadata-route`)** |
+| E | Step 11: `current_integrity` + `contact_label` added post-freeze. | Purely additive; landed as one small PR that Role A and Role C approved. | **Resolved (PR #3/#4)** |
+| F | Step 12: `versions[]` schema 1.1; worker route `MSG.REVISE_METADATA` + `GET_EVIDENCE` widening needed. | Additive schema, no migration. Step 12 merged (PR #5); Role C step 06 merged (PR #6); worker route + `GET_EVIDENCE.versions` applied to `service-worker.js` with Role A (PR #7). | **Resolved (PR #7, `main` `97e5e74`)** |
 
 ---
 
@@ -239,9 +239,11 @@ scope for the MVP; tracked here.
 
 ## 7. Outstanding
 
-- Land step-11 (`current_integrity`, `contact_label`) — deviation E. **Merged in PR #3/#4.**
-- Land step-12 (`versions[]`, `reviseMetadata`) alongside Role C step 06 — deviation F. **Merged in PR #5/#6.**
-- Apply the `service-worker.js` diff in §8 with Role A once `MSG.REVISE_METADATA` is on `main`. **Applied on `feat/role-a/revise-metadata-route` — see §8.**
+Nothing outstanding — every reconciliation item in §4 is resolved.
+
+- ~~Land step-11 (`current_integrity`, `contact_label`) — deviation E.~~ **Done — merged in PR #3/#4.**
+- ~~Land step-12 (`versions[]`, `reviseMetadata`) alongside Role C step 06 — deviation F.~~ **Done — merged in PR #5/#6.**
+- ~~Apply the `service-worker.js` diff in §8 with Role A once `MSG.REVISE_METADATA` is on `main` — deviation F.~~ **Done — PR #7, `main` at `97e5e74` (2026-09-09).**
 
 ## 8. `service-worker.js` diff — step 12 (applied on `feat/role-a/revise-metadata-route`)
 
