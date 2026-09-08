@@ -22,8 +22,11 @@
  *
  *   verifyManifestSignature(hashHex, sigB64, jwk) -> boolean
  *   reduceManifestForHashing(manifest)            -> reduced copy
- *     The two primitives a third party needs to verify an exported package with
- *     nothing but its manifest.json and screenshot bytes.
+ *   canonicalize(value)                           -> deterministic JCS-style JSON
+ *     The primitives a third party needs to verify an exported package with
+ *     nothing but its manifest.json and screenshot bytes. The export builder
+ *     (Role C) reduces then canonicalises through these so its manifest.json is
+ *     byte-identical to what the vault hashed.
  *
  *   VERIFY_DETAILS
  *     Frozen detail strings; Role C's UI renders them verbatim.
@@ -35,3 +38,4 @@ export { normalizeVersions } from "./versions.js";
 export { verifyEvidence, VERIFY_DETAILS } from "../verify/verifier.js";
 export { verifyManifestSignature } from "../crypto/sign.js";
 export { reduceManifestForHashing } from "./manifest-builder.js";
+export { canonicalize } from "./canonicalize.js";

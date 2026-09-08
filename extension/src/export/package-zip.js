@@ -23,8 +23,7 @@
  * page passes `globalThis.JSZip` from the vendored classic script).
  */
 
-import { canonicalize } from "../evidence/canonicalize.js";
-import { reduceManifestForHashing } from "../evidence/index.js";
+import { canonicalize, reduceManifestForHashing } from "../evidence/index.js";
 import { buildVerifyReadme } from "./verify-readme.txt.js";
 
 /**

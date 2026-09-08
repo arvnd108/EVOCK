@@ -37,12 +37,18 @@ export const MSG = Object.freeze({
    * + `reviseMetadata` are a Role B/A follow-up, see Role B Prompts/12.)
    */
   REVISE_METADATA: "REVISE_METADATA",
-  /** vault -> worker: export a human-readable PDF. payload: { evidence_id } -> { downloadId } */
-  EXPORT_PDF: "EXPORT_PDF",
-  /** vault -> worker: export a machine-readable ZIP. payload: { evidence_id } -> { downloadId } */
-  EXPORT_PACKAGE: "EXPORT_PACKAGE",
   /** vault -> worker: dev-build-only tamper harness. payload: { evidence_id, mode } -> { ok } */
   TAMPER_DEMO: "TAMPER_DEMO"
+  //
+  // Retired (Role A Prompts/13, Task B): EXPORT_PDF / EXPORT_PACKAGE.
+  // Export generation runs on the vault page (Role C
+  // vault/components/export-controller.js), not in the worker: jsPDF / JSZip
+  // load as classic <script> on an extension page with no bundler, a Blob +
+  // chrome.downloads.download works fine from a page, and it avoids MV3
+  // worker-lifetime limits during a multi-hundred-KB build. The page asks the
+  // worker only for data — GET_EVIDENCE { for_export: true }. If a worker-side
+  // route is ever wanted, re-add the constants and the handler shape in
+  // Role A Prompts/13 Task B.
 });
 
 /**
