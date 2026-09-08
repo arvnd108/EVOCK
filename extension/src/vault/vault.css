@@ -1,0 +1,319 @@
+/*
+ * EVOCK — shared visual language + vault page styles (Role C, step 03 / C3).
+ *
+ * The :root token block and the .nk-pill status treatment are the SHARED layer:
+ * Role A's popup imports this file (see popup.html) so the two surfaces cannot
+ * drift. Everything prefixed .nk- is safe to load alongside popup.css — no bare
+ * element selectors, no `body {}` here.
+ *
+ * Plain CSS only. No preprocessor, no framework.
+ */
+
+:root {
+  /* Palette */
+  --nk-bg: #f4f6f8;
+  --nk-surface: #ffffff;
+  --nk-surface-2: #f0f2f5;
+  --nk-border: #d8dde3;
+  --nk-text: #1b2733;
+  --nk-text-muted: #5b6774;
+  --nk-accent: #2f5d8a;
+
+  /* Status treatment — the ✓ / ⚠ / ❌ / — set */
+  --nk-ok: #1c7c46;
+  --nk-ok-bg: #e6f4ec;
+  --nk-warn: #8a5a00;
+  --nk-warn-bg: #fdf1dc;
+  --nk-bad: #a5242b;
+  --nk-bad-bg: #fbe8e9;
+  --nk-neutral: #5b6774;
+  --nk-neutral-bg: #eceef1;
+
+  /* Spacing scale */
+  --nk-space-1: 4px;
+  --nk-space-2: 8px;
+  --nk-space-3: 12px;
+  --nk-space-4: 16px;
+  --nk-space-5: 24px;
+
+  --nk-radius: 8px;
+  --nk-radius-sm: 5px;
+
+  --nk-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Status pill (shared with the popup) ---------------------------------- */
+
+.nk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  background: var(--nk-neutral-bg);
+  color: var(--nk-neutral);
+}
+
+.nk-pill--verified {
+  background: var(--nk-ok-bg);
+  color: var(--nk-ok);
+}
+
+.nk-pill--stale {
+  background: var(--nk-warn-bg);
+  color: var(--nk-warn);
+}
+
+.nk-pill--modified {
+  background: var(--nk-bad-bg);
+  color: var(--nk-bad);
+}
+
+.nk-pill--error {
+  background: var(--nk-warn-bg);
+  color: var(--nk-warn);
+}
+
+.nk-pill--never {
+  background: var(--nk-neutral-bg);
+  color: var(--nk-neutral);
+}
+
+/* --- Vault page -------------------------------------------------------------
+ * The vault page (vault.html) opts into a plain-element base via .nk-vault on a
+ * wrapper; the popup never sees these rules.
+ * ----------------------------------------------------------------------------- */
+
+.nk-vault {
+  box-sizing: border-box;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--nk-space-5) var(--nk-space-4);
+  font-family: var(--nk-font);
+  color: var(--nk-text);
+  background: var(--nk-bg);
+  min-height: 100vh;
+}
+
+.nk-vault *,
+.nk-vault *::before,
+.nk-vault *::after {
+  box-sizing: border-box;
+}
+
+.nk-vault__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--nk-space-3);
+  padding-bottom: var(--nk-space-3);
+  border-bottom: 1px solid var(--nk-border);
+}
+
+.nk-vault__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.nk-vault__count {
+  font-size: 13px;
+  color: var(--nk-text-muted);
+}
+
+.nk-vault__body {
+  margin-top: var(--nk-space-4);
+}
+
+.nk-vault__error {
+  padding: var(--nk-space-4);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius);
+  background: var(--nk-warn-bg);
+  color: var(--nk-warn);
+  font-size: 14px;
+}
+
+/* --- Filters -------------------------------------------------------------- */
+
+.nk-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-4);
+  align-items: flex-end;
+  margin-top: var(--nk-space-4);
+  padding: var(--nk-space-3) var(--nk-space-4);
+  background: var(--nk-surface);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius);
+}
+
+.nk-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nk-space-1);
+  font-size: 12px;
+}
+
+.nk-filter-group > .nk-filter-legend {
+  font-weight: 600;
+  color: var(--nk-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+
+.nk-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-2);
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.nk-filter-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--nk-text);
+}
+
+.nk-filters select,
+.nk-filters input[type="date"] {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 6px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-text);
+}
+
+/* --- Timeline ----------------------------------------------------------- */
+
+.nk-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nk-space-5);
+  margin-top: var(--nk-space-4);
+}
+
+.nk-day__header {
+  position: sticky;
+  top: 0;
+  padding: var(--nk-space-2) 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nk-text-muted);
+  background: var(--nk-bg);
+}
+
+.nk-day__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nk-space-2);
+  margin-top: var(--nk-space-2);
+}
+
+/* --- Record row ------------------------------------------------------- */
+
+.nk-record {
+  display: grid;
+  grid-template-columns: 92px 1fr 1fr auto;
+  align-items: center;
+  gap: var(--nk-space-3);
+  width: 100%;
+  padding: var(--nk-space-3) var(--nk-space-4);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius);
+  background: var(--nk-surface);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.nk-record:hover,
+.nk-record:focus-visible {
+  border-color: var(--nk-accent);
+  outline: none;
+}
+
+.nk-record__id {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.nk-record__platform {
+  color: var(--nk-text);
+}
+
+.nk-record__contact {
+  color: var(--nk-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nk-record__contact--empty {
+  font-style: italic;
+}
+
+.nk-record__pill {
+  justify-self: end;
+}
+
+@media (max-width: 620px) {
+  .nk-record {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "id pill"
+      "platform platform"
+      "contact contact";
+  }
+  .nk-record__id {
+    grid-area: id;
+  }
+  .nk-record__pill {
+    grid-area: pill;
+  }
+  .nk-record__platform {
+    grid-area: platform;
+  }
+  .nk-record__contact {
+    grid-area: contact;
+  }
+}
+
+/* --- Empty state ------------------------------------------------------- */
+
+.nk-empty {
+  max-width: 460px;
+  margin: 48px auto;
+  padding: var(--nk-space-5);
+  text-align: center;
+  border: 1px dashed var(--nk-border);
+  border-radius: var(--nk-radius);
+  background: var(--nk-surface);
+}
+
+.nk-empty__title {
+  margin: 0 0 var(--nk-space-2);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.nk-empty__body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--nk-text-muted);
+}

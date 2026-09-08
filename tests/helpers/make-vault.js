@@ -12,8 +12,10 @@
  *
  * NOTE (coordination, step 03): `projectListItem` does NOT expose the AI-derived
  * contact name, yet the timeline row in Role C.md §C3 shows a contact column.
- * That is a Role B contract gap, tracked in docs/role-c-status.md — this
- * generator deliberately mirrors the real projection and adds no `contact_label`.
+ * That is a Role B contract gap (tracked in docs/role-c-status.md). These items
+ * carry `contact_label` — the field Role C has asked Role B to add to
+ * `projectListItem` — with some rows deliberately `null` to exercise the vault's
+ * "unknown account" fallback. If Role B declines the field, drop it here.
  */
 
 const PLATFORMS = ["WhatsApp", "Instagram", "Website", "Unknown"];
@@ -23,6 +25,7 @@ const DOMAINS = {
   Website: "example.com",
   Unknown: "forum.example"
 };
+const CONTACTS = ["Mr. ABC B", "@handle_example", null, "Unknown sender"];
 
 function pad2(n) {
   return String(n).padStart(2, "0");
@@ -99,6 +102,7 @@ export function makeVaultList(n = 50) {
       evidence_id: `NK-${String(i + 1).padStart(4, "0")}`,
       created_at: device_captured_at,
       platform_label,
+      contact_label: CONTACTS[i % CONTACTS.length],
       source: {
         capture_method: "browser_extension.captureVisibleTab",
         url: `https://${domain}/thread/${i + 1}`,

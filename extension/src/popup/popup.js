@@ -384,8 +384,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   openVaultBtn.addEventListener("click", () => {
-    readyNotice.textContent = "The Evidence Vault is part of Role C and is not implemented yet.";
-    readyNotice.hidden = false;
+    // Full-page vault (Role C, step 03). Opened as its own extension page rather
+    // than rendered in the popup, which is too small for the timeline.
+    chrome.tabs.create({ url: chrome.runtime.getURL("src/vault/vault.html") });
   });
 
   // ---------------------------------------------------------------------------

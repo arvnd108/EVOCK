@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EVOCK — Evidence vault</title>
+    <link rel="stylesheet" href="vault.css" />
+  </head>
+  <body>
+    <!--
+      EVOCK vault page (Role C, step 03 / C3). A full extension page opened from
+      the popup: chrome-extension://<id>/src/vault/vault.html
+
+      Metadata only — no screenshot is loaded here. The detail view (step 04)
+      handles decryption. No inline script: MV3's extension-page CSP forbids it,
+      so the controller lives in vault.js and auto-boots off [data-vault-autoinit].
+    -->
+    <div class="nk-vault">
+      <header class="nk-vault__header">
+        <h1 class="nk-vault__title">Evidence vault</h1>
+        <span id="vault-count" class="nk-vault__count"></span>
+      </header>
+
+      <div id="vault-filters"></div>
+
+      <main id="vault-body" class="nk-vault__body" data-vault-autoinit></main>
+    </div>
+
+    <script type="module" src="vault.js"></script>
+  </body>
+</html>

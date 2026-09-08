@@ -154,6 +154,10 @@ describe("vault.50.sample.json — list() projection shape (§C3)", () => {
     "evidence_id",
     "created_at",
     "platform_label",
+    // contact_label is the field Role C has asked Role B to add to
+    // projectListItem (docs/role-c-status.md); the vault falls back to
+    // "unknown account" when it is absent or null.
+    "contact_label",
     "source",
     "capture",
     "extraction_status",

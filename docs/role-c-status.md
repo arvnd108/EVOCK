@@ -3,8 +3,43 @@
 **Step 00 — Build pipeline, lint, project scripts (C1):** complete.
 **Step 01 — Fixture set (C2):** complete.
 **Step 02 — Static demo chat page (C7):** complete.
-**Tests:** `npm test` → 319 passing (303 + 16 new). `python3 tests/run-tests.py` → 20/20.
+**Step 03 — Vault shell and chronological timeline (C3, part 1):** complete.
+**Tests:** `npm test` → 358 passing (+39 vault). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+---
+
+## Step 03 — Vault shell and chronological timeline (C3, part 1)
+
+### Added
+
+| File | Notes |
+|---|---|
+| `extension/src/vault/vault.html` | Full extension page. Header + count, `#vault-filters`, `#vault-body[data-vault-autoinit]`. No inline script (MV3 extension-page CSP); the controller auto-boots from `vault.js` off the `data-vault-autoinit` marker. |
+| `extension/src/vault/vault.css` | **Shared layer:** `:root` design tokens (`--nk-*`) + the `.nk-pill` ✓/⚠/❌/— status treatment — imported by the popup so the two surfaces cannot drift. Plus `.nk-*` vault layout (no bare-element selectors, no `body{}`, so it is safe alongside `popup.css`). |
+| `extension/src/vault/vault.js` | `initVault(mount, { vaultApi, now, onSelect })`. Fetches once via the `vaultApi` seam (`chromeVaultApi` → `LIST_EVIDENCE`, unwraps `{ ok, items }`), applies filter/sort client-side, paints count + filters + timeline. `assertNoCiphertext()` throws if `list()` ever returns screenshot bytes. Never imports `vaultRepo`, never decrypts. |
+| `extension/src/vault/components/record-card.js` | One row (id · platform · contact · pill) as a `<button>`; click → `onSelect(id)` **and** a bubbling `vault:select` CustomEvent. `verificationPill()` + locale-independent `formatDay()`. |
+| `extension/src/vault/components/timeline.js` | `groupByDay()` (order-preserving) + `renderTimeline()` — day header per calendar day, newest group first. |
+| `extension/src/vault/components/filters.js` | Pure `applyFilters(items, state, {now})` + `renderFilters()` controls (platform checkboxes, date range, verification `<select>`, sort). `platformsPresent()`, `defaultFilterState()`. |
+| `extension/src/vault/components/empty-state.js` | `renderEmptyState()` — what the vault is for + how a record gets here. §36-clean copy. |
+| `tests/vault/{record-card,timeline,filters,vault}.test.js` | 39 tests, jsdom (`// @vitest-environment jsdom`; `jsdom` added as a devDep). Cover grouping, counts, empty + null-field states, filter/sort narrowing, click wiring, the "no decrypt / one fetch" contract, and a 50-row render budget. |
+
+### Changed (Role A files — minimal, coordinated per Task 1 & Task 6)
+
+- `extension/src/popup/popup.html` — one `<link rel="stylesheet" href="../vault/vault.css">` before `popup.css`, so the popup gets the shared tokens + pill classes.
+- `extension/src/popup/popup.js` — the existing (stubbed) **Open Vault** button now does
+  `chrome.tabs.create({ url: chrome.runtime.getURL("src/vault/vault.html") })`. (`chrome.tabs.create` needs no `"tabs"` permission.)
+
+### Decisions
+
+- **Verification pill has five states, not the three in Task 3.** Task 3 lists `✓ Verified / ⚠ Not verified since <date> / — Never verified`. The fixtures (and reality) also produce a `MODIFIED` and an `ERROR` `last_verification`; hiding a tamper result behind a soft "⚠" would violate the honesty principle, so the pill adds `❌ Modified` and `⚠ Could not verify`, and the verification filter offers the matching options. Task 1's "✓ / ⚠ / ❌ treatment" already anticipates ❌.
+- **Staleness is injectable.** `verificationPill` / `applyFilters` take `now` (default `Date.now()`), `staleAfterDays` default 7. Tests pin `now` to 2026-09-08 for determinism.
+- **`contact_label` added to the fixtures + generator.** Step 01 flagged that the real `projectListItem` has no contact field. Rather than ship a timeline whose contact column is uniformly "unknown account", `make-vault.js` and `vault.50.sample.json` now carry `contact_label` (the recommended Role B addition; some rows deliberately `null`). `record-card.js` reads `item.contact_label` and still falls back to "unknown account" when the field is absent — which is what production `list()` returns until **Role B adds `contact_label` to `projectListItem`** (open contract item, unchanged recommendation).
+- **No manifest change.** `vault.html` is an extension-owned page opened by the extension itself; MV3 needs no `web_accessible_resources` entry for that. Still no bundler (step 00), so nothing copies `vault/` anywhere.
+
+### Verified in a browser
+
+Served over `http://127.0.0.1`, fed `initVault` a fake `vaultApi`: renders the grouped timeline, count, filter bar; changing the verification filter narrows to the right rows without a re-fetch; the empty state renders with no filter bar; zero `<img>` elements; console clean. Loaded raw (no `chrome` API) the page shows a graceful "Could not load the vault" box rather than a blank screen or an unhandled rejection.
 
 ---
 
@@ -185,5 +220,5 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ## Not yet started
 
-Steps 03–08: vault shell + timeline, detail view, verification UI,
-human review/edit, export, integration tests + copy audit.
+Steps 04–08: detail view, verification UI, human review/edit, export,
+integration tests + copy audit.
