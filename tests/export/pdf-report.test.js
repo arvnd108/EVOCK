@@ -75,15 +75,25 @@ describe("buildPdfReport — spec §19 content, in order", () => {
     expect(text).toContain("[AI-derived] Mr. ABC B");
   });
 
-  it("prints an Incoming/Outgoing direction beside every message name", () => {
+  it("prints an Incoming/Outgoing direction and the visible timestamp beside every message", () => {
     const messages = OK_RECORD.manifest.ai_derived_metadata.data.messages;
     expect(messages.length).toBeGreaterThan(0);
     for (const m of messages) {
       const dir =
         m.type === "outgoing" ? "Outgoing" : m.type === "incoming" ? "Incoming" : "Unknown";
       const who = m.sender || "message";
-      expect(text).toContain(`[AI-derived] ${dir} — ${who}: ${m.text ?? ""}`);
+      const stamp = m.visible_timestamp ? ` [${m.visible_timestamp}]` : "";
+      expect(text).toContain(`[AI-derived] ${dir} — ${who}${stamp}: ${m.text ?? ""}`);
     }
+  });
+
+  it("omits the bracketed timestamp when a message has none", () => {
+    const rec = structuredClone(OK_RECORD);
+    rec.manifest.ai_derived_metadata.data.messages = [
+      { sender: "A", text: "no stamp", visible_timestamp: null, type: "incoming" }
+    ];
+    const { text: t } = build(rec, VERIFICATION_OK);
+    expect(t).toContain("[AI-derived] Incoming — A: no stamp");
   });
 
   it("labels the capture time as device capture time, not 'timestamp'", () => {

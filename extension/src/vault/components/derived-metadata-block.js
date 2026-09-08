@@ -99,6 +99,13 @@ export function renderDerivedMetadataBlock(aiDerivedMetadata, { onEdit } = {}) {
         name.textContent = who;
         head.append(name);
       }
+      const ts = m && typeof m.visible_timestamp === "string" ? m.visible_timestamp.trim() : "";
+      if (ts) {
+        const time = document.createElement("span");
+        time.className = "nk-msg__ts";
+        time.textContent = ts;
+        head.append(time);
+      }
 
       const body = document.createElement("div");
       const text = m && typeof m.text === "string" ? m.text : "";

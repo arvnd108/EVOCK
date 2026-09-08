@@ -188,7 +188,11 @@ export function buildPdfReport(
     } else {
       for (const m of messages) {
         const who = m?.sender || "message";
-        write(`[AI-derived] ${directionLabel(m)} — ${who}: ${m?.text ?? ""}`, { indent: 8 });
+        const ts = typeof m?.visible_timestamp === "string" ? m.visible_timestamp.trim() : "";
+        const stamp = ts ? ` [${ts}]` : "";
+        write(`[AI-derived] ${directionLabel(m)} — ${who}${stamp}: ${m?.text ?? ""}`, {
+          indent: 8
+        });
       }
     }
   } else {

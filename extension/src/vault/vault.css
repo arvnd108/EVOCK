@@ -446,6 +446,14 @@
   color: var(--nk-text);
 }
 
+/* Visible timestamp, right-aligned in the head row — same treatment as the
+   popup's .extracted-msg-ts. */
+.nk-msg__ts {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--nk-text-muted);
+}
+
 /* Honesty rule 1: AI-derived metadata is a visually distinct, always-labelled
    tinted panel — never ground truth sitting beside the screenshot. */
 .nk-derived {

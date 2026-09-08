@@ -313,4 +313,28 @@ describe("derived-metadata block", () => {
     const el = renderDerivedMetadataBlock(clone);
     expect(el.querySelector(".nk-msg__dir").textContent).toBe("Unknown");
   });
+
+  it("shows each message's visible timestamp beside it, from the extracted data", () => {
+    const meta = loadUiFixture("record.sample").manifest.ai_derived_metadata;
+    const clone = JSON.parse(JSON.stringify(meta));
+    clone.data.messages = [
+      { sender: "A", text: "one", visible_timestamp: "00:39", type: "incoming" },
+      { sender: "You", text: "two", visible_timestamp: "11:28 PM", type: "outgoing" }
+    ];
+    const el = renderDerivedMetadataBlock(clone);
+    const stamps = [...el.querySelectorAll(".nk-msg__ts")].map((s) => s.textContent);
+    expect(stamps).toEqual(["00:39", "11:28 PM"]);
+    // timestamp sits in the same head row as the direction label
+    const head = el.querySelector(".nk-msg__head");
+    expect(head.querySelector(".nk-msg__dir")).not.toBeNull();
+    expect(head.querySelector(".nk-msg__ts")).not.toBeNull();
+  });
+
+  it("omits the timestamp element when a message has none", () => {
+    const meta = loadUiFixture("record.sample").manifest.ai_derived_metadata;
+    const clone = JSON.parse(JSON.stringify(meta));
+    clone.data.messages = [{ sender: "A", text: "hi", visible_timestamp: null, type: "incoming" }];
+    const el = renderDerivedMetadataBlock(clone);
+    expect(el.querySelector(".nk-msg__ts")).toBeNull();
+  });
 });
