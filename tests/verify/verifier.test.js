@@ -475,3 +475,68 @@ describe("current_integrity — recomputed hashes for Role C's MODIFIED panel", 
     expect(stored.current_integrity.metadata_hash).toBeTruthy();
   });
 });
+
+describe("verifyEvidence — { version } selects an earlier version (spec §26.4)", () => {
+  it("omitting version verifies the latest, unchanged", async () => {
+    const id = await seedRecord();
+    const noArg = await verifyEvidence(id, { persist: false });
+    const explicitLatest = await verifyEvidence(id, { persist: false });
+
+    expect(noArg.status).toBe("VERIFIED");
+    expect(explicitLatest).toEqual(expect.objectContaining({ status: "VERIFIED" }));
+  });
+
+  it("verifies a specific version's own manifest", async () => {
+    const { reviseMetadata } = await import(
+      "../../extension/src/evidence/revise-metadata.js"
+    );
+    const id = await seedRecord();
+    const updated = await reviseMetadata(id, {
+      platform: "WhatsApp",
+      contact_name: "Corrected Name",
+      messages: [],
+      visible_time: null,
+      date: null
+    });
+
+    const v1 = await verifyEvidence(id, { version: 1, persist: false });
+    const v2 = await verifyEvidence(id, { version: 2, persist: false });
+
+    expect(v1.status).toBe("VERIFIED");
+    expect(v2.status).toBe("VERIFIED");
+    // current_integrity is computed for the selected version
+    expect(v1.current_integrity.metadata_hash).toBe(
+      updated.versions[0].manifest.integrity.metadata_hash
+    );
+    expect(v2.current_integrity.metadata_hash).toBe(
+      updated.versions[1].manifest.integrity.metadata_hash
+    );
+    expect(v1.current_integrity.metadata_hash).not.toBe(v2.current_integrity.metadata_hash);
+  });
+
+  it("does not write last_verification for a non-latest version", async () => {
+    const { reviseMetadata } = await import(
+      "../../extension/src/evidence/revise-metadata.js"
+    );
+    const id = await seedRecord();
+    await reviseMetadata(id, {
+      platform: "WhatsApp",
+      contact_name: "X",
+      messages: [],
+      visible_time: null,
+      date: null
+    });
+
+    await verifyEvidence(id, { version: 1 }); // persist defaults true, but version != latest
+    expect((await readRaw(id)).last_verification).toBeNull();
+
+    await verifyEvidence(id); // latest — this one persists
+    expect((await readRaw(id)).last_verification.status).toBe("VERIFIED");
+  });
+
+  it("an out-of-range version is an ERROR, not a throw", async () => {
+    const id = await seedRecord();
+    const result = await verifyEvidence(id, { version: 9, persist: false });
+    expect(result.status).toBe("ERROR");
+  });
+});

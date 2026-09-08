@@ -142,6 +142,41 @@ export async function put(record) {
 }
 
 /**
+ * Replace an existing record wholesale, in one transaction.
+ *
+ * Unlike `put` (which uses `add` and refuses to clobber), this is an update: the
+ * id must already exist. Used by `reviseMetadata` to append a version — the
+ * whole record, old versions included, is written or nothing is.
+ *
+ * @param {import("../shared/types.js").StoredEvidenceRecord} record
+ * @returns {Promise<import("../shared/types.js").StoredEvidenceRecord>}
+ */
+export async function replace(record) {
+  assertStorableRecord(record);
+  if (typeof record.evidence_id !== "string" || record.evidence_id.length === 0) {
+    throw new TypeError("vault-repo.replace: record.evidence_id is required");
+  }
+
+  const db = await openDb();
+  const tx = db.transaction(STORE_EVIDENCE, "readwrite");
+  const store = tx.objectStore(STORE_EVIDENCE);
+
+  try {
+    const existing = await requestToPromise(store.get(record.evidence_id));
+    if (!existing) {
+      throw new Error(`vault-repo.replace: no record "${record.evidence_id}"`);
+    }
+    await requestToPromise(store.put(record));
+    await txDone(tx);
+    return record;
+  } catch (error) {
+    safeAbort(tx);
+    if (isQuotaError(error)) throw new VaultQuotaError();
+    throw error;
+  }
+}
+
+/**
  * Load one full record, ciphertext included.
  *
  * @param {string} evidence_id

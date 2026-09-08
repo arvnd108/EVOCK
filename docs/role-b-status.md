@@ -14,7 +14,9 @@ Role A and Role C import from **`extension/src/evidence/index.js`**, never the i
 ```js
 import {
   lockEvidence,               // ({ capture, extraction, emit? }) -> Promise<StoredEvidenceRecord>
-  verifyEvidence,             // (evidence_id, { persist = true }) -> Promise<VerificationResult>
+  verifyEvidence,             // (id, { persist = true, version? }) -> Promise<VerificationResult>
+  reviseMetadata,             // (id, correctedData, { note? }) -> Promise<StoredEvidenceRecord>
+  normalizeVersions,          // (record) -> RecordVersion[]  (synthesises v1 for pre-1.1 records)
   verifyManifestSignature,    // (hashHex, sigB64, jwk) -> Promise<boolean>
   reduceManifestForHashing,   // (manifest) -> reduced copy (for third-party verification)
   VERIFY_DETAILS              // frozen detail strings
@@ -27,7 +29,7 @@ import {
 import * as vaultRepo from "./storage/vault-repo.js";
 // list({ sort, filter }) -> VaultListItem[] (metadata only, incl. contact_label)
 // get(id) · getDecryptedScreenshot(id) -> Blob
-// updateVerification(id, result) · remove(id) · count() · VaultQuotaError
+// updateVerification(id, result) · replace(record) · remove(id) · count() · VaultQuotaError
 ```
 
 Dev-only: `verify/tamper-demo.js` → `__tamperDemo(id, mode)`. Gated behind
@@ -101,6 +103,29 @@ no stored record rewritten (`last_verification` is stored but never hashed).
   projection, `null` when extraction failed or the model returned no contact.
   Still metadata-only; it is a short string already in the deserialised record.
 
+### Schema 1.1 — versioned records (step 12)
+
+`StoredEvidenceRecord` gains `versions: RecordVersion[]`. A human correction to
+the AI metadata does **not** overwrite the signed record — `reviseMetadata`
+canonicalises, re-hashes and re-signs the corrected metadata and **appends** a
+new version. The original AI version is kept and stays independently verifiable
+(spec §26.4).
+
+- Additive: `versions` is stored but never hashed — no on-disk migration. A
+  pre-1.1 record has no `versions` key and is read as an implicit single "ai"
+  version via `normalizeVersions`; its first revision persists the full array.
+- Across every version the screenshot bytes, `integrity.screenshot_hash` and the
+  IV are identical — corrections are metadata-only. Only `metadata_hash`,
+  `manifest_hash`, `signature` and `signed_at` change per version.
+- `record.manifest` always mirrors the latest version; `created_at` is the
+  original preservation; `platform_label` / `last_verification` track the latest
+  (`last_verification` resets to `null` on every revision).
+- `verifyEvidence(id, { version: n })` verifies version *n*'s own manifest and
+  signature; the no-arg call is unchanged. `persist` writes `last_verification`
+  only on a latest-version run.
+- `RecordVersion`: `{ version, origin: "ai"|"human", author: null, note: string|null,
+  created_at, manifest }`.
+
 ---
 
 ## 4. Contract deviations to reconcile with Role A
@@ -112,6 +137,7 @@ no stored record rewritten (`last_verification` is stored but never hashed).
 | C | Capture / extraction fixtures authored by Role B from Role A's shapes. | Role A A7: re-checked field-for-field — exact. | **Resolved (`cff7c9b`)** |
 | D | `shared/types.js` authored solo by Role B in step 00 (shared-ownership). | Role A A7: reviewed and accepted. | **Resolved (`cff7c9b`)** |
 | E | Step 11: `current_integrity` + `contact_label` added post-freeze. | Purely additive; land as one small PR that Role A and Role C approve. | **Open — group PR** |
+| F | Step 12: `versions[]` schema 1.1; worker route `MSG.REVISE_METADATA` + `GET_EVIDENCE` widening needed. | Additive schema, no migration. Worker diff below — depends on Role C's `messages.js` (`REVISE_METADATA`) landing. | **Open — group PR with Role C step 06** |
 
 ---
 
@@ -213,5 +239,35 @@ scope for the MVP; tracked here.
 
 ## 7. Outstanding
 
-- Land the step-11 additive fields (`current_integrity`, `contact_label`) as one
-  group PR alongside Role C's branch — deviation E.
+- Land step-11 (`current_integrity`, `contact_label`) — deviation E. **Merged in PR #3/#4.**
+- Land step-12 (`versions[]`, `reviseMetadata`) alongside Role C step 06 — deviation F.
+- Apply the `service-worker.js` diff in §8 with Role A once `MSG.REVISE_METADATA` is on `main`.
+
+## 8. Proposed `service-worker.js` diff — step 12 (not yet applied)
+
+Role A owns `background/service-worker.js`. `MSG.REVISE_METADATA` is defined on
+Role C's step-06 branch, not yet on `main`, so this cannot land on its own.
+
+```diff
+-import { lockEvidence, verifyEvidence } from "../evidence/index.js";
++import { lockEvidence, verifyEvidence, reviseMetadata, normalizeVersions } from "../evidence/index.js";
+
+   // inside handleMessage(...)
++  if (message?.type === MSG.REVISE_METADATA) {
++    reviseMetadata(message.payload.evidence_id, message.payload.data, { note: message.payload.note })
++      .then((record) => sendResponse({ ok: true, record }),
++            (err) => sendResponse({ ok: false, error: err?.message || "Could not save the correction." }));
++    return true;
++  }
+
+   // GET_EVIDENCE handler — widen the response:
+   sendResponse({
+     ok: true,
+     manifest: record.manifest,
+     created_at: record.created_at,
+     platform_label: record.platform_label,
+     last_verification: record.last_verification,
++    versions: normalizeVersions(record),   // Role C reads res.versions; absent -> single implicit version
+     screenshotDataUrl,
+   });
+```
