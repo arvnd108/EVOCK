@@ -85,7 +85,13 @@ export class DemoExtractionProvider {
     const messages = [
       {
         sender: sampleSender,
-        text: `Preserved message on ${platform} (offline demo mode).`,
+        text: "Don't try to hide.....",
+        visible_timestamp: "11:28 PM",
+        type: "incoming"
+      },
+      {
+        sender: sampleSender,
+        text: "I know where you live",
         visible_timestamp: "11:28 PM",
         type: "incoming"
       }
