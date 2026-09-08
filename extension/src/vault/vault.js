@@ -188,8 +188,8 @@ if (typeof document !== "undefined") {
     panel = detailMount
       ? createDetailPanel({
           onVerify: verify
-            ? (id, manifest) => {
-                verify.run(id, { manifest });
+            ? (id, manifest, version) => {
+                verify.run(id, { manifest, version });
                 verify.element.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             : undefined,

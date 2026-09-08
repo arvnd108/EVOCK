@@ -354,7 +354,11 @@ export function handleMessage(message, _sender, sendResponse) {
       return true;
 
     case MSG.VERIFY_EVIDENCE:
-      verifyEvidence(message.payload?.evidence_id).then(
+      // `version` (1-based) verifies an earlier version instead of the latest
+      // (spec §26.4) — Role C's detail panel sends the version currently
+      // selected in its history list, so the recorded/current hash pair the
+      // panel shows are always for the same version. Omitted = latest.
+      verifyEvidence(message.payload?.evidence_id, { version: message.payload?.version }).then(
         (result) => sendResponse({ ok: true, result }),
         (err) => sendResponse({ ok: false, error: err?.message || "Verification failed." })
       );

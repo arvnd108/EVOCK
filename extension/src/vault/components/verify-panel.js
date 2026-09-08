@@ -26,10 +26,13 @@ export const HONEST_FOOTER =
 export const chromeVerifyApi = {
   /**
    * @param {string} evidence_id
+   * @param {number} [version] - 1-based; omitted verifies the latest version.
    * @returns {Promise<import("../../shared/types.js").VerificationResult>}
    */
-  async verify(evidence_id) {
-    const res = await chrome.runtime.sendMessage(envelope(MSG.VERIFY_EVIDENCE, { evidence_id }));
+  async verify(evidence_id, version) {
+    const res = await chrome.runtime.sendMessage(
+      envelope(MSG.VERIFY_EVIDENCE, { evidence_id, version })
+    );
     if (!res || !res.ok) {
       throw new Error((res && res.error) || "Verification failed.");
     }
@@ -193,7 +196,7 @@ function footer() {
  * Interactive wrapper: runs a verification and renders the result.
  *
  * @param {{
- *   verifyApi?: { verify: (id: string) => Promise<object> },
+ *   verifyApi?: { verify: (id: string, version?: number) => Promise<object> },
  *   onResult?: (id: string, result: object) => void
  * }} [opts]
  * @returns {{ element: HTMLElement, run: (id: string, o?: object) => Promise<object|undefined>, close: () => void }}
@@ -203,13 +206,22 @@ export function createVerifyPanel({ verifyApi = chromeVerifyApi, onResult } = {}
   element.className = "nk-verify-host";
   element.hidden = true;
 
-  async function run(evidenceId, { manifest } = {}) {
+  /**
+   * @param {string} evidenceId
+   * @param {{ manifest?: object, version?: number }} [opts] - `version` (1-based)
+   *   verifies that specific past version instead of the latest, so the
+   *   recorded hash shown (sourced from `manifest`, the selected version) is
+   *   always compared against a current hash recomputed for THAT SAME version
+   *   — not the latest. Mismatching the two would report a correctly-signed
+   *   older version as MODIFIED just because a later correction was saved.
+   */
+  async function run(evidenceId, { manifest, version } = {}) {
     element.hidden = false;
     element.replaceChildren(line("nk-verify__busy", `Verifying ${evidenceId}…`));
 
     let result;
     try {
-      result = await verifyApi.verify(evidenceId);
+      result = await verifyApi.verify(evidenceId, version);
     } catch (err) {
       element.replaceChildren(
         line("nk-verify__run-error", `Could not run verification: ${err?.message || err}`)

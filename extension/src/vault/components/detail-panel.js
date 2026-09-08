@@ -80,7 +80,7 @@ export function normalizeVersions(res) {
  *
  * @param {{
  *   detailApi?: { get: (id: string) => Promise<object> },
- *   onVerify?: (id: string, manifest: object) => void,
+ *   onVerify?: (id: string, manifest: object, version?: number) => void,
  *   onExport?: (id: string) => void,
  *   onEditMetadata?: (id: string, data: object|null) => void,
  *   onClose?: () => void
@@ -170,7 +170,13 @@ function buildBody(evidenceId, res, versions, selected, imageUrl, handlers) {
   actions.className = "nk-detail__actions";
   actions.append(
     // manifest is handed on so the verify panel can source the recorded hashes.
-    actionButton("Verify", () => onVerify?.(evidenceId, manifest)),
+    // version is passed only when an OLDER version is selected — omitted for
+    // the latest, so the worker still treats this as the record's current
+    // verification (persisted onto last_verification, updates the timeline
+    // pill). Passing the recorded hash from an old manifest against a current
+    // hash recomputed for the latest would report a correctly-signed older
+    // version as MODIFIED for no reason.
+    actionButton("Verify", () => onVerify?.(evidenceId, manifest, isLatest ? undefined : clamped)),
     actionButton("Export ▾", () => onExport?.(evidenceId)),
     actionButton("Close", () => close())
   );

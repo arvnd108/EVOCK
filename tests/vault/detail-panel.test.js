@@ -37,6 +37,7 @@ function apiFor(fixtureName) {
       created_at: rec.created_at,
       platform_label: rec.platform_label,
       last_verification: rec.last_verification,
+      versions: rec.versions,
       screenshotDataUrl: PNG_DATA_URL
     }))
   };
@@ -104,6 +105,52 @@ describe("detail panel — full record", () => {
       (r) => r.querySelector(".nk-integrity__key")?.textContent === "Trusted timestamp"
     );
     expect(tsRow.querySelector(".nk-integrity__val").textContent).toBe("Not configured");
+  });
+});
+
+describe("detail panel — versioned record — Verify button passes the selected version", () => {
+  // Regression guard: selecting an OLDER version in the history list and
+  // clicking Verify must tell the worker which version, or the panel ends up
+  // comparing a recorded hash from the old manifest against a current hash
+  // recomputed for the latest — reporting a correctly-signed old version as
+  // MODIFIED. Viewing the LATEST version must omit it (undefined), so the
+  // worker still treats the run as the record's current, persisted state.
+  it("omits version when viewing the latest version", async () => {
+    const onVerify = vi.fn();
+    const panel = createDetailPanel({ detailApi: apiFor("record.versioned.sample"), onVerify });
+    await panel.show("NK-0001"); // defaults to the latest (v2)
+
+    panel.element.querySelector(".nk-detail__actions button").click(); // "Verify" is first
+
+    expect(onVerify).toHaveBeenCalledTimes(1);
+    const [id, manifest, version] = onVerify.mock.calls[0];
+    expect(id).toBe("NK-0001");
+    expect(manifest).toBeTruthy();
+    expect(version).toBeUndefined();
+  });
+
+  it("passes the 1-based version number when an older version is selected", async () => {
+    const onVerify = vi.fn();
+    const panel = createDetailPanel({ detailApi: apiFor("record.versioned.sample"), onVerify });
+    await panel.show("NK-0001");
+
+    // Select v1 from the version history, then click Verify.
+    const v1Row = [...panel.element.querySelectorAll(".nk-versions__row")].find(
+      (row) => row.dataset.version === "1"
+    );
+    expect(v1Row).toBeTruthy();
+    v1Row.click();
+
+    panel.element.querySelector(".nk-detail__actions button").click();
+
+    expect(onVerify).toHaveBeenCalledTimes(1);
+    const [id, manifest, version] = onVerify.mock.calls[0];
+    expect(id).toBe("NK-0001");
+    expect(version).toBe(1);
+    // The recorded hash the verify panel will show must come from v1's own
+    // manifest, not the latest's.
+    const v1Manifest = loadUiFixture("record.versioned.sample").versions[0].manifest;
+    expect(manifest.integrity.metadata_hash).toBe(v1Manifest.integrity.metadata_hash);
   });
 });
 

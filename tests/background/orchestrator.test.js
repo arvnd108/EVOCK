@@ -254,6 +254,38 @@ describe("handleMessage routing", () => {
     expect(res.screenshotDataUrl).toMatch(/^data:image\/png;base64,/);
   });
 
+  it("VERIFY_EVIDENCE forwards the requested version to verifyEvidence", async () => {
+    // Regression guard: the detail panel lets a user select and verify an
+    // OLDER version. If `version` is dropped here, verifyEvidence silently
+    // falls back to the latest, and the panel ends up comparing a recorded
+    // hash from the old manifest against a current hash recomputed for the
+    // latest — reporting a correctly-signed old version as MODIFIED.
+    verifyEvidence.mockResolvedValue({ status: "VERIFIED" });
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "VERIFY_EVIDENCE", payload: { evidence_id: "NK-0001", version: 1 } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(verifyEvidence).toHaveBeenCalledWith("NK-0001", { version: 1 });
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true, result: { status: "VERIFIED" } });
+  });
+
+  it("VERIFY_EVIDENCE with no version passes version:undefined (verifies latest, persists)", async () => {
+    verifyEvidence.mockResolvedValue({ status: "VERIFIED" });
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "VERIFY_EVIDENCE", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(verifyEvidence).toHaveBeenCalledWith("NK-0001", { version: undefined });
+  });
+
   it("REVISE_METADATA routes to reviseMetadata and returns the updated record", async () => {
     const updated = { evidence_id: "NK-0001", versions: [{ version: 1 }, { version: 2 }] };
     reviseMetadata.mockResolvedValue(updated);

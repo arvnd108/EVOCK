@@ -137,10 +137,27 @@ describe("createVerifyPanel", () => {
     await panel.run("NK-0001", { manifest: MANIFEST });
 
     expect(verifyApi.verify).toHaveBeenCalledTimes(1);
-    expect(verifyApi.verify).toHaveBeenCalledWith("NK-0001");
+    // No version passed -> undefined -> worker treats this as the latest,
+    // persisted verification. Regression guard for the version-threading bug:
+    // this must NOT silently default to some other value.
+    expect(verifyApi.verify).toHaveBeenCalledWith("NK-0001", undefined);
     expect(onResult).toHaveBeenCalledWith("NK-0001", MODIFIED);
     expect(panel.element.hidden).toBe(false);
     expect(panel.element.querySelector(".nk-verify--modified")).not.toBeNull();
+  });
+
+  it("threads an explicit version through to the verify seam unchanged", async () => {
+    const verifyApi = { verify: vi.fn(async () => MODIFIED) };
+    const panel = createVerifyPanel({ verifyApi });
+
+    // Selecting an older version in the detail panel and clicking Verify must
+    // verify THAT version, not silently fall back to the latest — otherwise the
+    // recorded hash (from the old manifest) is compared against a current hash
+    // recomputed for a different version, which reports a correctly-signed old
+    // version as MODIFIED for no reason.
+    await panel.run("NK-0001", { manifest: MANIFEST, version: 1 });
+
+    expect(verifyApi.verify).toHaveBeenCalledWith("NK-0001", 1);
   });
 
   it("shows a transport error and does NOT call onResult when the seam rejects", async () => {
