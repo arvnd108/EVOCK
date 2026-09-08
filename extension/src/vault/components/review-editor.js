@@ -16,6 +16,7 @@
  */
 
 import { envelope, MSG } from "../../shared/messages.js";
+import { directionLabel } from "../../shared/message-direction.js";
 import { formatDeviceTime } from "./detail-panel.js";
 
 const ORIGIN_LABEL = { ai: "AI-derived", human: "Human-corrected" };
@@ -246,6 +247,16 @@ function messageRow(message, readers) {
   const row = document.createElement("div");
   row.className = "nk-review__message";
 
+  const type = message?.type ?? null;
+
+  // Direction is derived from `type`, not edited here — shown read-only so the
+  // corrected row still reads as "<direction> <name>: <text>", same as every
+  // other surface.
+  const dir = document.createElement("span");
+  dir.className = "nk-review__msg-dir";
+  dir.textContent = directionLabel(message);
+  dir.setAttribute("aria-label", "Message direction");
+
   const sender = document.createElement("input");
   sender.type = "text";
   sender.className = "nk-review__input nk-review__msg-sender";
@@ -264,8 +275,7 @@ function messageRow(message, readers) {
   time.value = message?.visible_timestamp ?? "";
   time.setAttribute("aria-label", "Message visible timestamp");
 
-  const type = message?.type ?? null;
-  row.append(sender, text, time);
+  row.append(dir, sender, text, time);
 
   readers.push(() => ({
     sender: nullIfBlank(sender.value),

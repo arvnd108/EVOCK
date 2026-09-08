@@ -75,6 +75,17 @@ describe("buildPdfReport — spec §19 content, in order", () => {
     expect(text).toContain("[AI-derived] Mr. ABC B");
   });
 
+  it("prints an Incoming/Outgoing direction beside every message name", () => {
+    const messages = OK_RECORD.manifest.ai_derived_metadata.data.messages;
+    expect(messages.length).toBeGreaterThan(0);
+    for (const m of messages) {
+      const dir =
+        m.type === "outgoing" ? "Outgoing" : m.type === "incoming" ? "Incoming" : "Unknown";
+      const who = m.sender || "message";
+      expect(text).toContain(`[AI-derived] ${dir} — ${who}: ${m.text ?? ""}`);
+    }
+  });
+
   it("labels the capture time as device capture time, not 'timestamp'", () => {
     expect(text).toContain("Device capture time");
     expect(text).toMatch(/not a trusted timestamp/i);

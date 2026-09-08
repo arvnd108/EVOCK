@@ -9,6 +9,8 @@
  * not as a failed capture (Role C.md §5).
  */
 
+import { directionLabel } from "../../shared/message-direction.js";
+
 const MISREAD_NOTE =
   "A vision model produced the values below. It can misread names, timestamps, " +
   "message text and small or partly hidden text — check each one against the " +
@@ -82,9 +84,28 @@ export function renderDerivedMetadataBlock(aiDerivedMetadata, { onEdit } = {}) {
     val.className = "nk-kv__val";
     for (const m of messages) {
       const line = document.createElement("div");
+      line.className = "nk-msg";
+
+      const head = document.createElement("div");
+      head.className = "nk-msg__head";
+      const dir = document.createElement("span");
+      dir.className = "nk-msg__dir";
+      dir.textContent = directionLabel(m);
+      head.append(dir);
+      const who = m && typeof m.sender === "string" ? m.sender.trim() : "";
+      if (who) {
+        const name = document.createElement("span");
+        name.className = "nk-msg__who";
+        name.textContent = who;
+        head.append(name);
+      }
+
+      const body = document.createElement("div");
       const text = m && typeof m.text === "string" ? m.text : "";
-      line.textContent = text ? `“${text}”` : "(no text)";
-      if (!text) line.className = "nk-kv__val--muted";
+      body.textContent = text ? `“${text}”` : "(no text)";
+      if (!text) body.className = "nk-kv__val--muted";
+
+      line.append(head, body);
       val.append(line);
     }
     kv.append(key, val);

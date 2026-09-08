@@ -35,7 +35,10 @@
  * @property {string|null} sender
  * @property {string|null} text
  * @property {string|null} visible_timestamp
- * @property {"incoming"|"outgoing"|null} type
+ * @property {"incoming"|"outgoing"|"unknown"} type - message direction, derived
+ *   by the extraction schema; never null (unrecognised -> "unknown"). Rendered
+ *   as "Incoming" / "Outgoing" / "Unknown" beside the message name in every UI
+ *   and export via shared/message-direction.js.
  */
 
 /**

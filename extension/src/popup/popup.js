@@ -2,6 +2,7 @@
 // Ready screen, one-click Preserve, live pipeline checklist, artifact result, and Settings.
 
 import { MSG, PRESERVE_STAGES } from "../shared/messages.js";
+import { directionLabel } from "../shared/message-direction.js";
 
 const BRIDGE_HEALTH_URL = "http://localhost:8787/health";
 
@@ -356,9 +357,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const ts = m.visible_timestamp
         ? `<span class="extracted-msg-ts">${esc(m.visible_timestamp)}</span>`
         : "";
+      const dir = `<span class="extracted-msg-type">${esc(directionLabel(m))}</span>`;
       return `<div class="extracted-msg">
           <div class="extracted-msg-header">
-            <span class="extracted-msg-sender">${esc(label)}</span>${ts}
+            <span class="extracted-msg-sender">${esc(label)}</span>${dir}${ts}
           </div>
           <div class="extracted-msg-text">${esc(m.text || "")}</div>
         </div>`;

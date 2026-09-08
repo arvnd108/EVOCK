@@ -22,6 +22,7 @@
 
 import { formatDay, formatDeviceTime } from "../vault/components/record-card.js";
 import { CANNOT_ESTABLISH } from "./verify-readme.txt.js";
+import { directionLabel } from "../shared/message-direction.js";
 
 /** spec §19 section titles, in the required order. A test asserts this order. */
 export const PDF_SECTIONS = Object.freeze([
@@ -186,8 +187,8 @@ export function buildPdfReport(
       write("[AI-derived] No message text extracted.");
     } else {
       for (const m of messages) {
-        const who = m?.sender || m?.type || "message";
-        write(`[AI-derived] ${who}: ${m?.text ?? ""}`, { indent: 8 });
+        const who = m?.sender || "message";
+        write(`[AI-derived] ${directionLabel(m)} — ${who}: ${m?.text ?? ""}`, { indent: 8 });
       }
     }
   } else {

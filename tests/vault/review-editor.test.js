@@ -33,6 +33,29 @@ describe("renderReviewEditor", () => {
     expect(form.querySelector(".nk-review__msg-text").value).toBe("Dont try to hide");
   });
 
+  it("shows a read-only Incoming/Outgoing direction on every message row", () => {
+    const data = structuredClone(v1());
+    data.messages = [
+      { ...data.messages[0], type: "incoming" },
+      { ...data.messages[1], type: "outgoing" },
+      { ...data.messages[1], type: undefined }
+    ];
+    const form = renderReviewEditor(data);
+    const dirs = [...form.querySelectorAll(".nk-review__message .nk-review__msg-dir")];
+    expect(dirs.map((d) => d.textContent)).toEqual(["Incoming", "Outgoing", "Unknown"]);
+    // derived, not an input the human can edit
+    expect(form.querySelector(".nk-review__msg-dir").tagName).not.toBe("INPUT");
+  });
+
+  it("passes the message type through Save unchanged (direction is not re-authored)", () => {
+    const onSave = vi.fn();
+    const data = structuredClone(v1());
+    data.messages = [{ ...data.messages[0], type: "outgoing" }];
+    const form = renderReviewEditor(data, { onSave });
+    form.dispatchEvent(new Event("submit", { cancelable: true }));
+    expect(onSave.mock.calls[0][0].messages[0].type).toBe("outgoing");
+  });
+
   it("Save emits the full corrected data with the edited field changed and the rest intact", () => {
     const onSave = vi.fn();
     const form = renderReviewEditor(v1(), { onSave });

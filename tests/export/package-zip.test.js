@@ -59,6 +59,17 @@ describe("buildPackageZip", () => {
     expect(parsed.integrity.screenshot_hash).toBe(RECORD.manifest.integrity.screenshot_hash);
   });
 
+  it("keeps each message's direction (type) in manifest.json", async () => {
+    const { zip } = await open();
+    const parsed = JSON.parse(await zip.file(`${ID}/manifest.json`).async("string"));
+    const src = RECORD.manifest.ai_derived_metadata.data.messages;
+    const out = parsed.ai_derived_metadata.data.messages;
+    expect(out.map((m) => m.type)).toEqual(src.map((m) => m.type));
+    for (const m of out) {
+      expect(["incoming", "outgoing", "unknown"]).toContain(m.type);
+    }
+  });
+
   it("screenshot.enc holds the raw ciphertext bytes", async () => {
     const { zip } = await open();
     const got = new Uint8Array(await zip.file(`${ID}/screenshot.enc`).async("arraybuffer"));

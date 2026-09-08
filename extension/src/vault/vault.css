@@ -416,6 +416,36 @@
   font-style: italic;
 }
 
+/* One extracted message: a direction tag (+ name) above the quoted text. */
+.nk-msg + .nk-msg {
+  margin-top: var(--nk-space-2);
+}
+
+.nk-msg__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--nk-space-2);
+  margin-bottom: 2px;
+}
+
+.nk-msg__dir {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-border);
+  color: var(--nk-text-muted);
+}
+
+.nk-msg__who {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nk-text);
+}
+
 /* Honesty rule 1: AI-derived metadata is a visually distinct, always-labelled
    tinted panel — never ground truth sitting beside the screenshot. */
 .nk-derived {
@@ -796,8 +826,17 @@
 
 .nk-review__message {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: minmax(72px, auto) 1fr 2fr 1fr;
   gap: var(--nk-space-2);
+  align-items: center;
+}
+
+.nk-review__msg-dir {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nk-text-muted);
 }
 
 .nk-review__actions {

@@ -290,4 +290,27 @@ describe("derived-metadata block", () => {
     expect(el.querySelector(".nk-kv")).toBeNull();
     expect(el.textContent).not.toMatch(/failed capture|capture failed/i);
   });
+
+  it("shows an Incoming/Outgoing direction beside every message", () => {
+    const meta = loadUiFixture("record.sample").manifest.ai_derived_metadata;
+    const messages = meta.data.messages;
+    expect(messages.length).toBeGreaterThan(0);
+
+    const el = renderDerivedMetadataBlock(meta);
+    const tags = [...el.querySelectorAll(".nk-msg__dir")];
+    expect(tags).toHaveLength(messages.length);
+    tags.forEach((tag, i) => {
+      const t = messages[i].type;
+      const want = t === "outgoing" ? "Outgoing" : t === "incoming" ? "Incoming" : "Unknown";
+      expect(tag.textContent).toBe(want);
+    });
+  });
+
+  it("falls back to 'Unknown' when a message has no type", () => {
+    const meta = loadUiFixture("record.sample").manifest.ai_derived_metadata;
+    const clone = JSON.parse(JSON.stringify(meta));
+    clone.data.messages = [{ sender: "A", text: "hi", visible_timestamp: null, type: undefined }];
+    const el = renderDerivedMetadataBlock(clone);
+    expect(el.querySelector(".nk-msg__dir").textContent).toBe("Unknown");
+  });
 });
