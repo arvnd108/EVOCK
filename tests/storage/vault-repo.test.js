@@ -4,6 +4,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  clear,
   count,
   get,
   getDecryptedScreenshot,
@@ -348,6 +349,35 @@ describe("remove / count", () => {
     // ids are not reused after a delete
     const { record: c } = await makeRecord();
     expect((await put(c)).evidence_id).toBe("NK-0003");
+  });
+});
+
+describe("clear", () => {
+  it("deletes every record in one call", async () => {
+    await put((await makeRecord()).record);
+    await put((await makeRecord()).record);
+    await put((await makeRecord()).record);
+    expect(await count()).toBe(3);
+
+    await clear();
+
+    expect(await count()).toBe(0);
+    expect(await list()).toEqual([]);
+  });
+
+  it("is a no-op on an empty vault", async () => {
+    expect(await count()).toBe(0);
+    await expect(clear()).resolves.toBeUndefined();
+    expect(await count()).toBe(0);
+  });
+
+  it("does not reset the id counter — ids are never reused", async () => {
+    await put((await makeRecord()).record); // NK-0001
+    await put((await makeRecord()).record); // NK-0002
+    await clear();
+
+    const next = await put((await makeRecord()).record);
+    expect(next.evidence_id).toBe("NK-0003");
   });
 });
 

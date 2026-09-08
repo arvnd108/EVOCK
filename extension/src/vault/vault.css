@@ -127,9 +127,33 @@
   letter-spacing: 0.02em;
 }
 
+.nk-vault__meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--nk-space-3);
+}
+
 .nk-vault__count {
   font-size: 13px;
   color: var(--nk-text-muted);
+}
+
+.nk-vault__clear {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-bad);
+  cursor: pointer;
+}
+
+.nk-vault__clear:hover,
+.nk-vault__clear:focus-visible {
+  border-color: var(--nk-bad);
+  background: var(--nk-bad-bg);
+  outline: none;
 }
 
 .nk-vault__body {
@@ -229,6 +253,33 @@
 }
 
 /* --- Record row ------------------------------------------------------- */
+
+/* Row + its Delete control. The row stays a full <button>; Delete is a sibling
+   so it is not a button nested in a button. */
+.nk-record-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--nk-space-2);
+}
+
+.nk-record__delete {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-bad);
+  cursor: pointer;
+}
+
+.nk-record__delete:hover,
+.nk-record__delete:focus-visible {
+  border-color: var(--nk-bad);
+  background: var(--nk-bad-bg);
+  outline: none;
+}
 
 .nk-record {
   display: grid;

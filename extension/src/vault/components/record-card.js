@@ -107,10 +107,15 @@ export function verificationPill(
 
 /**
  * @param {object} item a `list()` projection item.
- * @param {{ onSelect?: (evidenceId: string) => void, now?: number }} [opts]
- * @returns {HTMLButtonElement}
+ * @param {{
+ *   onSelect?: (evidenceId: string) => void,
+ *   onDelete?: (evidenceId: string) => void,
+ *   now?: number
+ * }} [opts]
+ * @returns {HTMLElement} the row `<button>`, or — when `onDelete` is given — a
+ *   `<div class="nk-record-row">` wrapping that button plus a Delete button.
  */
-export function renderRecordCard(item, { onSelect, now } = {}) {
+export function renderRecordCard(item, { onSelect, onDelete, now } = {}) {
   const row = document.createElement("button");
   row.type = "button";
   row.className = "nk-record";
@@ -149,5 +154,24 @@ export function renderRecordCard(item, { onSelect, now } = {}) {
     );
   });
 
-  return row;
+  if (typeof onDelete !== "function") return row;
+
+  // A <button> cannot nest inside the row <button>, so the Delete control is a
+  // sibling in a flex wrapper — it lands immediately to the right of the row,
+  // just past the verification pill.
+  const wrap = document.createElement("div");
+  wrap.className = "nk-record-row";
+
+  const del = document.createElement("button");
+  del.type = "button";
+  del.className = "nk-record__delete";
+  del.textContent = "Delete";
+  del.setAttribute("aria-label", `Delete ${item.evidence_id}`);
+  del.addEventListener("click", (event) => {
+    event.stopPropagation();
+    onDelete(item.evidence_id);
+  });
+
+  wrap.append(row, del);
+  return wrap;
 }

@@ -3,7 +3,7 @@
  * EVOCK — chronological timeline grouping (Role C, step 03 / C3, spec §17).
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { groupByDay, renderTimeline } from "../../extension/src/vault/components/timeline.js";
 import { makeVaultList } from "../helpers/make-vault.js";
 import { loadUiFixture } from "../helpers/ui-fixtures.js";
@@ -50,6 +50,19 @@ describe("renderTimeline", () => {
     const t0 = performance.now();
     renderTimeline(items, { now: NOW });
     expect(performance.now() - t0).toBeLessThan(400);
+  });
+
+  it("threads onDelete to every row so each gets a Delete button", () => {
+    const onDelete = vi.fn();
+    const items = makeVaultList(5);
+    const el = renderTimeline(items, { now: NOW, onDelete });
+
+    const deletes = [...el.querySelectorAll(".nk-record__delete")];
+    expect(deletes).toHaveLength(5);
+    expect(el.querySelectorAll(".nk-record-row")).toHaveLength(5);
+
+    deletes[2].click();
+    expect(onDelete).toHaveBeenCalledWith(items[2].evidence_id);
   });
 
   it("survives a row with null platform/contact and no verification", () => {

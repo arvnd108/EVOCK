@@ -24,6 +24,8 @@ const normalizeVersions = vi.fn((record) => record?.versions ?? [{ version: 1, o
 const vaultList = vi.fn();
 const vaultGet = vi.fn();
 const vaultGetScreenshot = vi.fn();
+const vaultRemove = vi.fn();
+const vaultClear = vi.fn();
 
 vi.mock("../../extension/src/capture/capture.js", () => ({
   captureVisibleTab: (...a) => captureVisibleTab(...a)
@@ -45,7 +47,9 @@ vi.mock("../../extension/src/evidence/index.js", () => ({
 vi.mock("../../extension/src/storage/vault-repo.js", () => ({
   list: (...a) => vaultList(...a),
   get: (...a) => vaultGet(...a),
-  getDecryptedScreenshot: (...a) => vaultGetScreenshot(...a)
+  getDecryptedScreenshot: (...a) => vaultGetScreenshot(...a),
+  remove: (...a) => vaultRemove(...a),
+  clear: (...a) => vaultClear(...a)
 }));
 
 // --- chrome stub ---------------------------------------------------------
@@ -325,6 +329,49 @@ describe("handleMessage routing", () => {
       ok: false,
       error: "signing key unavailable"
     });
+  });
+
+  it("DELETE_EVIDENCE delegates to vaultRepo.remove and replies { ok: true }", async () => {
+    vaultRemove.mockResolvedValue(undefined);
+    const sendResponse = vi.fn();
+    const async = handleMessage(
+      { type: "DELETE_EVIDENCE", payload: { evidence_id: "NK-0002" } },
+      {},
+      sendResponse
+    );
+    expect(async).toBe(true);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+    expect(vaultRemove).toHaveBeenCalledWith("NK-0002");
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true });
+  });
+
+  it("DELETE_EVIDENCE surfaces a failure as { ok: false, error }", async () => {
+    vaultRemove.mockRejectedValue(new Error("IndexedDB unavailable"));
+    const sendResponse = vi.fn();
+    handleMessage({ type: "DELETE_EVIDENCE", payload: { evidence_id: "NK-0002" } }, {}, sendResponse);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+    expect(sendResponse.mock.calls[0][0]).toEqual({
+      ok: false,
+      error: "IndexedDB unavailable"
+    });
+  });
+
+  it("CLEAR_VAULT delegates to vaultRepo.clear and replies { ok: true }", async () => {
+    vaultClear.mockResolvedValue(undefined);
+    const sendResponse = vi.fn();
+    const async = handleMessage({ type: "CLEAR_VAULT", payload: {} }, {}, sendResponse);
+    expect(async).toBe(true);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+    expect(vaultClear).toHaveBeenCalledTimes(1);
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true });
+  });
+
+  it("CLEAR_VAULT surfaces a failure as { ok: false, error }", async () => {
+    vaultClear.mockRejectedValue(new Error("clear failed"));
+    const sendResponse = vi.fn();
+    handleMessage({ type: "CLEAR_VAULT", payload: {} }, {}, sendResponse);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: false, error: "clear failed" });
   });
 
   it("ignores unknown message types", () => {

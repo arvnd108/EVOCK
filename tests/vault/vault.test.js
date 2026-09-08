@@ -15,7 +15,10 @@ const NOW = Date.parse("2026-09-08T12:00:00+05:30");
 function mountDom() {
   document.body.innerHTML = `
     <div class="nk-vault">
-      <span id="vault-count"></span>
+      <div class="nk-vault__meta">
+        <span id="vault-count"></span>
+        <button id="vault-clear" hidden>Clear</button>
+      </div>
       <div id="vault-filters"></div>
       <main id="vault-body"></main>
     </div>`;
@@ -23,8 +26,25 @@ function mountDom() {
 }
 
 function fakeApi(items) {
-  return { list: vi.fn(async () => items) };
+  // `state` stands in for the stored vault; `list()` hands back a copy so the
+  // controller's in-memory list is its own and the two must be kept in sync by
+  // the code under test, not by a shared reference.
+  const state = [...items];
+  return {
+    state,
+    list: vi.fn(async () => [...state]),
+    remove: vi.fn(async (id) => {
+      const i = state.findIndex((x) => x.evidence_id === id);
+      if (i !== -1) state.splice(i, 1);
+    }),
+    clear: vi.fn(async () => {
+      state.length = 0;
+    })
+  };
 }
+
+const yes = () => true;
+const no = () => false;
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -110,6 +130,134 @@ describe("initVault", () => {
     await initVault(mount, { vaultApi: api, now: NOW });
     expect(performance.now() - t0).toBeLessThan(500);
     expect(api.list).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("initVault — per-record delete", () => {
+  const firstRow = (mount) => mount.querySelector(".nk-record-row");
+  const rowDeleteBtn = (mount) => mount.querySelector(".nk-record-row .nk-record__delete");
+
+  it("Delete on a row: confirms, calls api.remove, drops the row and updates the count", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(5));
+    const onMutate = vi.fn();
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: yes, onMutate });
+
+    const id = firstRow(mount).querySelector(".nk-record").dataset.evidenceId;
+    expect(document.getElementById("vault-count").textContent).toBe("5 records");
+
+    rowDeleteBtn(mount).click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(api.remove).toHaveBeenCalledWith(id);
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(4);
+    expect(mount.querySelector(`[data-evidence-id="${id}"]`)).toBeNull();
+    expect(document.getElementById("vault-count").textContent).toBe("4 records");
+    expect(api.list).toHaveBeenCalledTimes(1); // no re-fetch
+    expect(onMutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("declining the confirm deletes nothing", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(3));
+    const onMutate = vi.fn();
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: no, onMutate });
+
+    rowDeleteBtn(mount).click();
+    await Promise.resolve();
+
+    expect(api.remove).not.toHaveBeenCalled();
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(3);
+    expect(onMutate).not.toHaveBeenCalled();
+  });
+
+  it("deleting the last record shows the empty state and hides Clear", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(1));
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: yes });
+
+    rowDeleteBtn(mount).click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mount.querySelector(".nk-empty")).not.toBeNull();
+    expect(document.getElementById("vault-count").textContent).toBe("");
+    expect(document.getElementById("vault-clear").hidden).toBe(true);
+    expect(document.getElementById("vault-filters").children).toHaveLength(0);
+  });
+
+  it("a failing api.remove keeps the row and shows an error line", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(3));
+    api.remove.mockRejectedValueOnce(new Error("IndexedDB unavailable"));
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: yes });
+
+    rowDeleteBtn(mount).click();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(3);
+    expect(mount.querySelector(".nk-vault__error").textContent).toMatch(/IndexedDB unavailable/);
+  });
+});
+
+describe("initVault — Clear all", () => {
+  it("Clear is hidden for an empty vault and shown once there are records", async () => {
+    const empty = mountDom();
+    await initVault(empty, { vaultApi: fakeApi([]), now: NOW });
+    expect(document.getElementById("vault-clear").hidden).toBe(true);
+
+    const full = mountDom();
+    await initVault(full, { vaultApi: fakeApi(makeVaultList(4)), now: NOW });
+    expect(document.getElementById("vault-clear").hidden).toBe(false);
+  });
+
+  it("Clear: confirms, calls api.clear, empties the list, count and filters", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(6));
+    const onMutate = vi.fn();
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: yes, onMutate });
+
+    document.getElementById("vault-clear").click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(api.clear).toHaveBeenCalledTimes(1);
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(0);
+    expect(mount.querySelector(".nk-empty")).not.toBeNull();
+    expect(document.getElementById("vault-count").textContent).toBe("");
+    expect(document.getElementById("vault-clear").hidden).toBe(true);
+    expect(document.getElementById("vault-filters").children).toHaveLength(0);
+    expect(onMutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("declining the confirm clears nothing", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(6));
+    await initVault(mount, { vaultApi: api, now: NOW, confirm: no });
+
+    document.getElementById("vault-clear").click();
+    await Promise.resolve();
+
+    expect(api.clear).not.toHaveBeenCalled();
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(6);
+  });
+
+  it("the returned controller exposes deleteRecord / clearVault", async () => {
+    const mount = mountDom();
+    const api = fakeApi(makeVaultList(3));
+    const c = await initVault(mount, { vaultApi: api, now: NOW, confirm: yes });
+
+    const id = mount.querySelector(".nk-record").dataset.evidenceId;
+    await c.deleteRecord(id);
+    expect(api.remove).toHaveBeenCalledWith(id);
+    expect(mount.querySelectorAll(".nk-record")).toHaveLength(2);
+
+    await c.clearVault();
+    expect(api.clear).toHaveBeenCalledTimes(1);
+    expect(mount.querySelector(".nk-empty")).not.toBeNull();
   });
 });
 

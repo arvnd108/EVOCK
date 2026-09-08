@@ -131,4 +131,50 @@ describe("renderRecordCard", () => {
     const el = renderRecordCard(item(), { now: NOW });
     expect(el.querySelectorAll("img")).toHaveLength(0);
   });
+
+  it("without onDelete: still a bare row button (no wrapper, no Delete)", () => {
+    const el = renderRecordCard(item(), { now: NOW });
+    expect(el.tagName).toBe("BUTTON");
+    expect(el.className).toBe("nk-record");
+    expect(el.querySelector(".nk-record__delete")).toBeNull();
+  });
+
+  it("with onDelete: wraps the row and adds a Delete button beside it", () => {
+    const el = renderRecordCard(item(), { onDelete: vi.fn(), now: NOW });
+    expect(el.tagName).toBe("DIV");
+    expect(el.className).toBe("nk-record-row");
+    const row = el.querySelector("button.nk-record");
+    const del = el.querySelector("button.nk-record__delete");
+    expect(row).not.toBeNull();
+    expect(del).not.toBeNull();
+    // Delete comes after the row (and thus after the verification pill)
+    expect(row.compareDocumentPosition(del) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(del.getAttribute("aria-label")).toBe("Delete NK-0007");
+    expect(del.textContent).toBe("Delete");
+  });
+
+  it("clicking Delete calls onDelete with the id and does not select the row", () => {
+    const onDelete = vi.fn();
+    const onSelect = vi.fn();
+    const host = document.createElement("div");
+    const el = renderRecordCard(item(), { onDelete, onSelect, now: NOW });
+    host.append(el);
+    const heard = vi.fn();
+    host.addEventListener("vault:select", heard);
+
+    el.querySelector(".nk-record__delete").click();
+
+    expect(onDelete).toHaveBeenCalledWith("NK-0007");
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(heard).not.toHaveBeenCalled();
+  });
+
+  it("clicking the row still selects even when a Delete button is present", () => {
+    const onDelete = vi.fn();
+    const onSelect = vi.fn();
+    const el = renderRecordCard(item(), { onDelete, onSelect, now: NOW });
+    el.querySelector(".nk-record").click();
+    expect(onSelect).toHaveBeenCalledWith("NK-0007");
+    expect(onDelete).not.toHaveBeenCalled();
+  });
 });

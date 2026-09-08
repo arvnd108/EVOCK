@@ -31,10 +31,10 @@ export function groupByDay(items) {
 
 /**
  * @param {object[]} items already filtered + sorted.
- * @param {{ onSelect?: (id: string) => void, now?: number }} [opts]
+ * @param {{ onSelect?: (id: string) => void, onDelete?: (id: string) => void, now?: number }} [opts]
  * @returns {HTMLElement} a `<div class="nk-timeline">`
  */
-export function renderTimeline(items, { onSelect, now } = {}) {
+export function renderTimeline(items, { onSelect, onDelete, now } = {}) {
   const root = document.createElement("div");
   root.className = "nk-timeline";
 
@@ -50,7 +50,7 @@ export function renderTimeline(items, { onSelect, now } = {}) {
     const list = document.createElement("div");
     list.className = "nk-day__list";
     for (const item of dayItems) {
-      list.append(renderRecordCard(item, { onSelect, now }));
+      list.append(renderRecordCard(item, { onSelect, onDelete, now }));
     }
 
     section.append(header, list);

@@ -377,6 +377,23 @@ export function handleMessage(message, _sender, sendResponse) {
       );
       return true;
 
+    case MSG.DELETE_EVIDENCE:
+      // Vault "Delete" on one row. Explicit user action; the vault page has
+      // already confirmed with the user.
+      vaultRepo.remove(message.payload?.evidence_id).then(
+        () => sendResponse({ ok: true }),
+        (err) => sendResponse({ ok: false, error: err?.message || "Could not delete the record." })
+      );
+      return true;
+
+    case MSG.CLEAR_VAULT:
+      // Vault "Clear" — delete every record in one transaction.
+      vaultRepo.clear().then(
+        () => sendResponse({ ok: true }),
+        (err) => sendResponse({ ok: false, error: err?.message || "Could not clear the vault." })
+      );
+      return true;
+
     default:
       return false;
   }

@@ -37,6 +37,30 @@ export const chromeVaultApi = {
     const items = res.items || [];
     assertNoCiphertext(items);
     return items;
+  },
+
+  /**
+   * Permanently delete one record. The worker owns the IndexedDB write
+   * (`vaultRepo.remove`); this is just the round-trip.
+   * @param {string} evidence_id
+   * @returns {Promise<void>}
+   */
+  async remove(evidence_id) {
+    const res = await chrome.runtime.sendMessage(envelope(MSG.DELETE_EVIDENCE, { evidence_id }));
+    if (!res || !res.ok) {
+      throw new Error((res && res.error) || "Could not delete the record.");
+    }
+  },
+
+  /**
+   * Permanently delete every record (`vaultRepo.clear` in the worker).
+   * @returns {Promise<void>}
+   */
+  async clear() {
+    const res = await chrome.runtime.sendMessage(envelope(MSG.CLEAR_VAULT, {}));
+    if (!res || !res.ok) {
+      throw new Error((res && res.error) || "Could not clear the vault.");
+    }
   }
 };
 
@@ -67,20 +91,38 @@ export function assertNoCiphertext(items) {
  *
  * @param {HTMLElement} mount
  * @param {{
- *   vaultApi?: { list: (q?: object) => Promise<object[]> },
+ *   vaultApi?: {
+ *     list: (q?: object) => Promise<object[]>,
+ *     remove?: (id: string) => Promise<void>,
+ *     clear?: () => Promise<void>
+ *   },
  *   now?: number,
- *   onSelect?: (evidenceId: string) => void
+ *   onSelect?: (evidenceId: string) => void,
+ *   onMutate?: () => void,
+ *   confirm?: (message: string) => boolean
  * }} [opts]
- * @returns {Promise<{ refresh: () => void }>}
+ * @returns {Promise<{
+ *   refresh: () => void,
+ *   applyVerification: (id: string, r: object) => void,
+ *   deleteRecord: (id: string) => Promise<void>,
+ *   clearVault: () => Promise<void>
+ * }>}
  */
 export async function initVault(
   mount,
-  { vaultApi = chromeVaultApi, now = Date.now(), onSelect } = {}
+  {
+    vaultApi = chromeVaultApi,
+    now = Date.now(),
+    onSelect,
+    onMutate,
+    confirm = (message) => globalThis.confirm(message)
+  } = {}
 ) {
   const all = await vaultApi.list({ sort: "newest" });
 
   const countEl = document.getElementById("vault-count");
   const filtersEl = document.getElementById("vault-filters");
+  const clearEl = document.getElementById("vault-clear");
 
   let state = defaultFilterState();
 
@@ -96,16 +138,24 @@ export async function initVault(
             : `${visible.length} of ${all.length} records`;
     }
 
+    if (clearEl) clearEl.hidden = all.length === 0;
+
     mount.replaceChildren(
       all.length === 0
         ? renderEmptyState()
         : visible.length === 0
           ? renderNoMatches()
-          : renderTimeline(visible, { onSelect, now })
+          : renderTimeline(visible, { onSelect, onDelete: handleRowDelete, now })
     );
   };
 
-  if (filtersEl) {
+  const handleRowDelete = (evidence_id) =>
+    deleteRecord(evidence_id).catch((err) =>
+      showError(mount, `Could not delete ${evidence_id}: ${err?.message || err}`)
+    );
+
+  const renderFilterBar = () => {
+    if (!filtersEl) return;
     filtersEl.replaceChildren(
       all.length === 0
         ? document.createDocumentFragment()
@@ -117,8 +167,57 @@ export async function initVault(
             }
           })
     );
+  };
+
+  /** Drop `evidence_id` from the in-memory list and re-sync every surface. */
+  const forget = (evidence_id) => {
+    const i = all.findIndex((x) => x.evidence_id === evidence_id);
+    if (i !== -1) all.splice(i, 1);
+  };
+
+  const resync = () => {
+    renderFilterBar();
+    paint();
+    onMutate?.();
+  };
+
+  /**
+   * "Delete" on one row. Confirms, deletes through the vault seam, then removes
+   * the row locally so the count and timeline update without a re-fetch.
+   * @param {string} evidence_id
+   */
+  async function deleteRecord(evidence_id) {
+    if (!confirm(`Permanently delete ${evidence_id}? This cannot be undone.`)) return;
+    await vaultApi.remove(evidence_id);
+    forget(evidence_id);
+    resync();
   }
 
+  /** "Clear" — confirm, then delete every record. */
+  async function clearVault() {
+    if (all.length === 0) return;
+    const noun = all.length === 1 ? "record" : "records";
+    if (
+      !confirm(
+        `Permanently delete all ${all.length} ${noun} from the vault? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    await vaultApi.clear();
+    all.length = 0;
+    resync();
+  }
+
+  if (clearEl) {
+    clearEl.addEventListener("click", () => {
+      clearVault().catch((err) =>
+        showError(mount, `Could not clear the vault: ${err?.message || err}`)
+      );
+    });
+  }
+
+  renderFilterBar();
   paint();
 
   /**
@@ -135,7 +234,21 @@ export async function initVault(
     }
   }
 
-  return { refresh: paint, applyVerification };
+  return { refresh: paint, applyVerification, deleteRecord, clearVault };
+}
+
+/**
+ * Show a transient error line at the top of the vault body. Cleared by the next
+ * successful `paint()` (which calls `mount.replaceChildren`).
+ * @param {HTMLElement} mount
+ * @param {string} message
+ */
+function showError(mount, message) {
+  mount.querySelector(":scope > .nk-vault__error")?.remove();
+  const box = document.createElement("div");
+  box.className = "nk-vault__error";
+  box.textContent = message;
+  mount.prepend(box);
 }
 
 function renderNoMatches() {
@@ -219,6 +332,14 @@ if (typeof document !== "undefined") {
     if (exporter) detailMount.append(exporter.element);
 
     initVault(auto, {
+      // A delete or a clear can pull the record the detail area is showing out
+      // from under it — close every open sub-panel after any list mutation.
+      onMutate: () => {
+        verify?.close();
+        review?.close();
+        exporter?.close();
+        panel?.close();
+      },
       onSelect: panel
         ? (id) => {
             verify?.close();

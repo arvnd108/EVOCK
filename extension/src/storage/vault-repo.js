@@ -294,6 +294,25 @@ export async function remove(evidence_id) {
 }
 
 /**
+ * Delete every record in one transaction. Explicit user action only. Like
+ * `remove`, the id counter in `settings` is left untouched — a fresh capture
+ * after a clear still gets the next number up, never a reused id.
+ *
+ * @returns {Promise<void>}
+ */
+export async function clear() {
+  const db = await openDb();
+  const tx = db.transaction(STORE_EVIDENCE, "readwrite");
+  try {
+    await requestToPromise(tx.objectStore(STORE_EVIDENCE).clear());
+    await txDone(tx);
+  } catch (error) {
+    safeAbort(tx);
+    throw error;
+  }
+}
+
+/**
  * @returns {Promise<number>} number of records in the vault
  */
 export async function count() {

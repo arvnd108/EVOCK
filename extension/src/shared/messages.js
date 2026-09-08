@@ -37,6 +37,10 @@ export const MSG = Object.freeze({
    * + `reviseMetadata` are a Role B/A follow-up, see Role B Prompts/12.)
    */
   REVISE_METADATA: "REVISE_METADATA",
+  /** vault -> worker: permanently delete one record. payload: { evidence_id } -> { ok }. Explicit user action only. */
+  DELETE_EVIDENCE: "DELETE_EVIDENCE",
+  /** vault -> worker: permanently delete every record. payload: {} -> { ok }. The id counter is not reset — ids are never reused. */
+  CLEAR_VAULT: "CLEAR_VAULT",
   /** vault -> worker: dev-build-only tamper harness. payload: { evidence_id, mode } -> { ok } */
   TAMPER_DEMO: "TAMPER_DEMO"
   //
