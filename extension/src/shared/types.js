@@ -160,14 +160,38 @@
 // ---------------------------------------------------------------------------
 
 /**
+ * One entry in `StoredEvidenceRecord.versions`. A version is never mutated once
+ * written; a human correction appends a new one (spec §26.4).
+ *
+ * @typedef {Object} RecordVersion
+ * @property {number} version                 // 1-based, dense
+ * @property {"ai"|"human"} origin            // who produced this version's metadata
+ * @property {string|null} author             // reserved; null for now
+ * @property {string|null} note               // human edits may carry a short reason
+ * @property {string} created_at              // ISO-8601 — when THIS version was signed
+ * @property {EvidenceManifest} manifest      // full manifest for this version
+ */
+
+/**
+ * `versions[]` was added in schema 1.1: additive, stored but not hashed, so no
+ * on-disk migration. A pre-1.1 record has no `versions` key and is read as an
+ * implicit single "ai" version (see `evidence/versions.js` normalizeVersions).
+ *
+ * Across every version the screenshot bytes, `integrity.screenshot_hash` and the
+ * IV are identical — edits are metadata-only. `manifest` always mirrors the
+ * latest version; `created_at` is the original preservation (timeline anchor,
+ * never changes); `platform_label` and `last_verification` track the latest
+ * version (`last_verification` resets to null on every revision).
+ *
  * @typedef {Object} StoredEvidenceRecord
  * @property {string} evidence_id            // primary key, e.g. "NK-0001"
- * @property {EvidenceManifest} manifest
- * @property {ArrayBuffer} screenshot_ciphertext
- * @property {ArrayBuffer} iv
- * @property {string} created_at             // index for timeline ordering
- * @property {string} platform_label         // index for grouping, may be "Unknown"
- * @property {VerificationResult|null} last_verification
+ * @property {EvidenceManifest} manifest     // == versions[last].manifest
+ * @property {ArrayBuffer} screenshot_ciphertext  // shared by every version
+ * @property {ArrayBuffer} iv                // shared by every version
+ * @property {string} created_at             // original preservation — timeline anchor
+ * @property {string} platform_label         // from the LATEST version's data, may be "Unknown"
+ * @property {VerificationResult|null} last_verification  // of the LATEST version
+ * @property {RecordVersion[]} [versions]    // 1.1+; absent on pre-1.1 records
  */
 
 // ---------------------------------------------------------------------------

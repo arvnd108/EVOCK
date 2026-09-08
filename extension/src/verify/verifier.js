@@ -21,6 +21,7 @@ import { decryptBlob, getVaultKey } from "../crypto/encrypt.js";
 import { sha256Bytes, sha256Canonical } from "../crypto/hash.js";
 import { inspectManifestSignature } from "../crypto/sign.js";
 import { reduceManifestForHashing } from "../evidence/manifest-builder.js";
+import { normalizeVersions } from "../evidence/versions.js";
 import { nowIso } from "../shared/iso-time.js";
 import * as vaultRepo from "../storage/vault-repo.js";
 
@@ -42,13 +43,18 @@ export const VERIFY_DETAILS = Object.freeze({
  * Verify one stored evidence record.
  *
  * @param {string} evidence_id
- * @param {{ persist?: boolean }} [options] persist writes the result onto the
- *   record's `last_verification` (default true). A persist failure propagates —
- *   a verify that claims to have stored its result but did not is misleading.
+ * @param {{ persist?: boolean, version?: number }} [options]
+ *   `persist` writes the result onto the record's `last_verification` (default
+ *   true) — but ONLY for a latest-version run; an older version's result is
+ *   informational, not the record's current state. A persist failure propagates.
+ *   `version` (1-based) verifies that earlier version's manifest instead of the
+ *   latest (spec §26.4); omitted = latest, no behaviour change.
  * @returns {Promise<import("../shared/types.js").VerificationResult>}
  */
-export async function verifyEvidence(evidence_id, { persist = true } = {}) {
+export async function verifyEvidence(evidence_id, { persist = true, version } = {}) {
   const verified_at = nowIso();
+  // Only a latest-version run represents the record's current state.
+  const persistThis = persist && version === undefined;
 
   const record = await vaultRepo.get(evidence_id);
   if (!record) {
@@ -67,7 +73,10 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
 
   const details = [];
   let errored = false;
-  const manifest = record.manifest;
+  const manifest =
+    version === undefined
+      ? record.manifest
+      : normalizeVersions(record)[version - 1]?.manifest;
 
   // Hashes recomputed this run, paired against manifest.integrity.* for Role C's
   // MODIFIED panel (spec §18). Stay null where a check could not be evaluated.
@@ -88,7 +97,7 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
       verified_at,
       current_integrity: { screenshot_hash: null, metadata_hash: null, manifest_hash: null }
     };
-    if (persist) await vaultRepo.updateVerification(evidence_id, result);
+    if (persistThis) await vaultRepo.updateVerification(evidence_id, result);
     return result;
   }
 
@@ -179,7 +188,7 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
     }
   };
 
-  if (persist) await vaultRepo.updateVerification(evidence_id, result);
+  if (persistThis) await vaultRepo.updateVerification(evidence_id, result);
   return result;
 }
 
