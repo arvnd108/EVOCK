@@ -129,7 +129,20 @@ or:
 2. **Load unpacked** and select the `extension/` directory.
 3. Pin EVOCK and open it on any normal web page.
 
-The extension runs directly from source — no build step.
+The extension runs directly from source — **no build step**. The two third-party
+libraries the export feature uses (`jsPDF`, `JSZip`) are checked in as browser
+builds under `extension/src/vendor/`, so nothing needs installing to load or run
+the extension.
+
+To run the test suite you do need the dev dependencies:
+
+```bash
+npm install
+npm test          # vitest — unit + integration
+npm run lint      # eslint, must be clean
+python3 tests/run-tests.py                 # Role A extraction-schema harness
+python3 tests/bridge-and-vision.test.py    # bridge + vision-provider harness
+```
 
 ### 2. Start the local AI bridge (for Vision extraction)
 
@@ -161,9 +174,25 @@ its hashes, signature and encryption are produced regardless (see **Fail
 gracefully**). If the vault write itself fails, the popup keeps the screenshot on
 screen and says so rather than losing it silently.
 
-The vault browsing / export UI is Role C's slice and is not built yet; stored
-records are reachable through the service worker's `LIST_EVIDENCE` /
-`GET_EVIDENCE` / `VERIFY_EVIDENCE` messages.
+### 4. Browse, verify and export
+
+Click **Open Vault** in the popup (or open `src/vault/vault.html` from the
+extension). The vault lists preserved records grouped by day, metadata only — no
+screenshot is loaded until you open a record.
+
+Open a record for the decrypted screenshot, the AI-derived metadata block
+(tinted and labelled — it is model output, not ground truth), the capture
+context, and the three SHA-256 hashes with signature, trusted-timestamp and
+encryption status.
+
+- **Verify** recomputes every hash and checks the signature: `✓ INTEGRITY
+  VERIFIED`, or `❌ MODIFICATION DETECTED` with the recorded-vs-current hash pair
+  and the changed field named.
+- **Edit metadata** records a human correction as a new signed version; the
+  original AI-derived version is kept and stays independently verifiable.
+- **Export ▾** produces a human-readable PDF (`EVOCK-NK-0001-report.pdf`) and a
+  machine-readable ZIP (`EVOCK-NK-0001-package.zip`), both built on the page and
+  saved through the browser's download manager. Nothing is uploaded.
 
 ---
 
@@ -308,36 +337,30 @@ The timeline is intended to organize captured facts rather than make unsupported
 
 EVOCK can produce two forms of output.
 
-### Human-readable report
+### Human-readable report (`EVOCK-NK-0001-report.pdf`)
 
-A report can contain:
+A `jsPDF` report, in this order: evidence ID; platform/source; contact/account;
+visible content; visible timestamp; device capture time; screenshot preview; all
+three SHA-256 hashes; signature status; trusted-timestamp status; the last
+verification result; and a **Limitations** page drawn from *What EVOCK can and
+cannot establish* that is never trimmed. AI-derived fields are marked as such.
 
-- evidence ID;
-- platform/source;
-- account/contact;
-- visible content;
-- visible timestamp;
-- capture timestamp;
-- screenshot;
-- SHA-256 fingerprint;
-- signature status;
-- timestamp status;
-- integrity status;
-- relevant limitations.
-
-### Machine-readable package
-
-A structured evidence package can contain components such as:
+### Machine-readable package (`EVOCK-NK-0001-package.zip`)
 
 ```text
 NK-0001/
-├── manifest.json
-├── screenshot.enc
-├── signature.sig
-└── verification.json
+├── manifest.json        # EvidenceManifest, canonical + reduced — byte-identical
+│                        #   to what the vault hashed for manifest_hash
+├── screenshot.enc       # AES-GCM ciphertext (the decryption key is NOT included)
+├── signature.sig        # base64 ECDSA P-256 signature
+├── public-key.jwk       # so the signature checks without this vault
+├── verification.json    # the last VerificationResult (or null)
+└── README.txt           # the exact hashing order, reproducible with stock tools
 ```
 
-The exact package structure can evolve with the implementation.
+`README.txt` spells out how to recompute each hash and check the signature with
+nothing but Python and the package contents. The integration test does exactly
+that from an empty vault.
 
 ---
 

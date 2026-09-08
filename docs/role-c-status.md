@@ -8,7 +8,8 @@
 **Step 05 — Verification UI (C5):** complete.
 **Step 06 — Human review / edit of AI metadata (C4):** complete.
 **Step 07 — Export: human-readable PDF + machine-readable package (C6):** complete.
-**Tests:** `npm test` → 468 passing (+43 export). `python3 tests/run-tests.py` → 20/20.
+**Step 08 — Integration tests, copy audit, demo script, README (C8):** complete.
+**Tests:** `npm test` → 470 passing (+2 integration). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
 
 ## Contract items resolved by Role B
@@ -408,6 +409,100 @@ builders produce valid output (PDF `%PDF-`, 4 pages, Limitations page; ZIP `PK`,
 
 ---
 
-## Not yet started
+## Step 08 — Integration tests, copy audit, demo script, README (C8)
 
-Step 08: integration tests + copy audit, `docs/demo-script.md`, README updates.
+### Task 1 — integration tests
+
+`tests/integration/pipeline.test.js` (2 tests, `fake-indexeddb`, no browser):
+
+- **Full path** — `lockEvidence` → `vaultRepo.list()` (asserts no `screenshot_ciphertext` / `iv` /
+  `manifest` on the projection) → `getDecryptedScreenshot` (asserts PNG magic bytes) →
+  `verifyEvidence` **VERIFIED** → `__tamperDemo(id, "modify_metadata")` → `verifyEvidence`
+  **MODIFIED** with `VERIFY_DETAILS.METADATA_MISMATCH` and `last_verification` persisted →
+  `__tamperDemo(id, "restore")` → **VERIFIED** → `buildPdfReport` (`%PDF-`, >1 KB) and
+  `buildPackageZip` (`PK`, six entries, `manifest.json` === `canonicalize(reduceManifestForHashing(manifest))`).
+- **Independent verification from an empty vault** — build a package, then `clear()` the evidence
+  + settings stores (keeping only `STORE_KEYS`, which the screenshot hash needs), assert
+  `list()` is empty, then from the **zip bytes only**: `sha256Utf8(manifest.json)` reproduces
+  `manifest_hash` (cross-checked against the pre-wipe vault value) and equals
+  `sha256Canonical(reduceManifestForHashing(parsed))`; `sha256Canonical(ai_derived_metadata)` ===
+  `integrity.metadata_hash`; `verifyManifestSignature(recomputed_hash, signature.sig,
+  public-key.jwk)` === true and a one-char flip of the hash → false; `sha256Bytes(decrypt(
+  screenshot.enc, iv-from-manifest, vault key))` === `integrity.screenshot_hash`.
+  - **Design note surfaced here:** the package's `manifest.json` is the *reduced* manifest, so it
+    carries **no `integrity.manifest_hash` and no `signature` block** — a hash cannot contain
+    itself, and `signature.sig` pins it instead. The README worked example already computes the
+    hash from the file rather than reading it, so this is correct and self-sufficient; the test
+    asserts both keys are absent.
+
+### Task 2 — copy audit (spec §36) — outcome
+
+Ran the §36 grep (`admissib|proves|guarantee|locally|local only|everything is local|recover(s|ed)?
+deleted|identif(y|ies) (the )?sender|stalker|threat level`) over `extension/src`, `demo`, `docs`,
+`README.md`, and reviewed every rendered string in the popup, the vault, and the detail / verify /
+review panels.
+
+**Result: no user-facing string was rewritten — the honesty layer already holds.** Every hit is
+one of:
+
+| Where | Hit | Verdict |
+|---|---|---|
+| `extension/src/**/*.js` | `sign.js` "PROVES / does not", `tamper-demo.js` "guaranteed to change", `vision-provider.js` / `demo-provider.js` "guaranteed to return", the §36 reminder comments in `pdf-report.js` / `verify-readme.txt.js` / `empty-state.js`, `verify-panel.js` "locally-derived value" | **code comments**, not shipped text |
+| `verify-readme.txt.js` `CANNOT_ESTABLISH` | "legal admissibility — whether a court will accept this evidence **is not** for any tool to determine." | negated, §27-correct |
+| `README.md` | "It **does not** prove: … legally admissible", "Legal admissibility **is not guaranteed** / EVOCK **does not** guarantee…", "**not** a universal deleted-message recovery system", "EVOCK **cannot** independently establish: … guaranteed legal admissibility" | every hit inside an explicit *does not / cannot / is not guaranteed* sentence |
+| `docs/EVOCK.md`, `docs/role-*-status.md` | spec text and internal status notes | not user-facing |
+
+Popup / vault / panel strings: reviewed, all clean (`"Digital Evidence Preservation"`, `"AI
+extraction unavailable — screenshot preserved without derived metadata"`, `"Stored in the local
+vault, hashed, signed and encrypted"`, the verify-panel `HONEST_FOOTER`, the empty-state copy).
+The step-07 `tests/export/copy-audit.test.js` already gates the PDF + README strings on every
+build.
+
+### Task 3 — `docs/demo-script.md`
+
+Added. A timed (< 5 min) offline walkthrough: provider set to **Demo** (rehearsed fallback,
+stated up front), open `demo/chat.html`, one-click Preserve → vault → detail → **Verify ✓** →
+tamper from the **service-worker console** (`globalThis.__EVOCK_DEV__ = true; const { __tamperDemo }
+= await import('./src/verify/tamper-demo.js'); await __tamperDemo('NK-0001', 'modify_metadata')`)
+→ **Verify ❌** with the recorded-vs-current pair → restore → **Verify ✓** → export PDF + ZIP →
+optional `unzip -p … README.txt`. Includes a closing line and a "if something goes wrong" list.
+
+- The tamper step uses the console, not a UI button: `verify/tamper-demo.js` is deliberately never
+  imported by production code, and `MSG.TAMPER_DEMO` is defined but unrouted. A dynamic `import()`
+  behind the dev flag keeps that property. If a one-click dev button is wanted later it is a small
+  Role A/B worker route (`TAMPER_DEMO`) plus a dev-gated control — tracked, not built.
+
+### Task 4 — `README.md`
+
+- "Running the Prototype §1" — kept "no build step"; added that `jsPDF` / `JSZip` ride in
+  `extension/src/vendor/` so loading needs no install, and a `npm install && npm test && npm run
+  lint` block for the test suite.
+- Replaced the stale "vault browsing / export UI … is not built yet" paragraph with a
+  "§4 Browse, verify and export" section (Open Vault, detail view, Verify, Edit metadata, Export).
+- "Evidence Export" — the report field list is now the spec §19 order with the real filename; the
+  package tree is the real six entries with a note that `README.txt` makes it reproducible.
+- Bridge / OpenRouter-key text unchanged.
+
+### Task 5 — Role C Definition-of-Done pass
+
+| # | Check | Status |
+|---|---|---|
+| 1 | `npm i` → loadable unpacked extension, first try | **PASS (adapted)** — no bundler (step 00); `extension/` loads unpacked with vendored libs checked in, no `npm run build`. Verified served over http + in the browser pane across steps 03–07. |
+| 2 | Fixtures committed and used by other roles' tests | **PASS** — `tests/fixtures/*` + `tests/helpers/{make-vault,ui-fixtures}.js`; Role B's `revise-metadata` / verifier tests consume `record.versioned.sample.json`. |
+| 3 | Vault lists records grouped chronologically without loading a screenshot | **PASS** — `timeline.js` + `vault.js`; `assertNoCiphertext` guards the list; integration test asserts the projection has no bytes. |
+| 4 | Detail view: screenshot, derived metadata (distinct + labelled), capture context, three hashes, signature, timestamp status, encryption status | **PASS** — `detail-panel.js` + `derived-metadata-block.js` + `integrity-block.js`. |
+| 5 | Human review/edit → new signed version, original preserved, no silent overwrite | **PASS** — `review-editor.js`; Role B `reviseMetadata` (step 12) appends a version, Role C never signs. |
+| 6 | Verification UI shows recorded-vs-current hashes side by side and names the changed field | **PASS** — `verify-panel.js` MODIFIED branch, `current_integrity` from Role B step 11. |
+| 7 | PDF has every spec §19 field plus an accurate Limitations section | **PASS** — `pdf-report.js`, `PDF_SECTIONS` order test + Limitations content test. |
+| 8 | ZIP has all six entries and verifies independently on a clean machine | **PASS** — `package-zip.js`; `tests/integration/pipeline.test.js` reproduces every hash + the signature from an empty vault. |
+| 9 | Every user-facing string passes the §36 audit | **PASS** — Task 2 above; `tests/export/copy-audit.test.js` keeps the PDF/README strings gated. |
+| 10 | `docs/demo-script.md` runs start to finish in under five minutes with the network off | **PASS (on paper)** — script written to the < 5 min budget with the Demo provider; a live run-through on the three machines is the group rehearsal item. |
+
+### Follow-ups tracked (not blockers)
+
+- **`Role A Prompts/13`** — ratify `GET_EVIDENCE { for_export }` (done by Role A step 13) / worker-side
+  export decision (kept page-side).
+- **`MSG.TAMPER_DEMO` route** — optional one-click dev tamper button; console path works today.
+- **`jszip.min.js` dead `new Function` branch** — confirm untripped under MV3 CSP on a real unpacked
+  load (load-time safe; JSZip never calls that path).
+- **DoD #1 / #10 live run** — load-unpacked + full offline demo on all three machines at the group sync.
