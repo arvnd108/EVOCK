@@ -1,10 +1,7 @@
 /**
  * EVOCK — human-readable PDF report (Role C, step 07 / C6, spec §19).
  *
- * Builds a jsPDF document with every field spec §19 lists, IN THAT ORDER, and a
- * Limitations page (drawn from spec §27) that must never be trimmed for
- * tidiness: if this PDF reaches a lawyer or an investigator it must not
- * overstate what EVOCK is.
+ * Builds a jsPDF document with every field spec §19 lists, IN THAT ORDER.
  *
  * This module computes nothing cryptographic. It reads a StoredEvidenceRecord's
  * manifest, the last VerificationResult, and a decrypted screenshot data URL,
@@ -21,7 +18,6 @@
  */
 
 import { formatDay, formatDeviceTime } from "../vault/components/record-card.js";
-import { CANNOT_ESTABLISH } from "./verify-readme.txt.js";
 import { directionLabel } from "../shared/message-direction.js";
 
 /** spec §19 section titles, in the required order. A test asserts this order. */
@@ -36,19 +32,7 @@ export const PDF_SECTIONS = Object.freeze([
   "SHA-256 hashes",
   "Signature",
   "Trusted timestamp",
-  "Verification result",
-  "Limitations"
-]);
-
-/** What this record CAN show, within EVOCK's architecture (spec §27). */
-export const CAN_SHOW = Object.freeze([
-  "a visual artifact was captured;",
-  "what information was extracted from that artifact;",
-  "when the device recorded the capture;",
-  "whether the protected record later changed;",
-  "whether the record's digital signature verifies;",
-  "how multiple captured incidents relate in time;",
-  "that an encrypted evidence package exists."
+  "Verification result"
 ]);
 
 export const AI_DERIVED_NOTE =
@@ -274,33 +258,6 @@ export function buildPdfReport(
       "establish who sent a message or whether the conversation is truthful.",
     { size: 9, style: "italic" }
   );
-
-  // 12. Limitations (own page, never trimmed) -----------------
-  doc.addPage();
-  y = margin;
-  write("Limitations", { size: 16, style: "bold", gap: 8 });
-  write(
-    "This report and the evidence package it describes are designed to support reporting and " +
-      "investigation. They are not a forensic examination and they do not decide any legal question.",
-    { size: 10 }
-  );
-  spacer(6);
-  write("This record can show:", { style: "bold" });
-  for (const c of CAN_SHOW) write(`• ${c}`, { indent: 8 });
-  spacer(6);
-  write("This record cannot establish:", { style: "bold" });
-  for (const c of CANNOT_ESTABLISH) write(`• ${c}`, { indent: 8 });
-  spacer(6);
-  write(
-    "A valid signature shows the manifest has not changed since it was signed. It does not " +
-      "identify the signer: the public key travels inside the package, so the record demonstrates " +
-      "internal consistency, not an external trust anchor.",
-    { size: 10 }
-  );
-  write("EVOCK does not replace professional forensic examination or legal procedure.", {
-    size: 10,
-    style: "bold"
-  });
 
   const bytes = new Uint8Array(doc.output("arraybuffer"));
   return { bytes, text: drawn.join("\n"), pages: doc.getNumberOfPages() };

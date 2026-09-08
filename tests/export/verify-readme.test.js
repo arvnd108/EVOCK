@@ -7,11 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  buildVerifyReadme,
-  CANNOT_ESTABLISH,
-  HASHING_RECIPE
-} from "../../extension/src/export/verify-readme.txt.js";
+import { buildVerifyReadme, HASHING_RECIPE } from "../../extension/src/export/verify-readme.txt.js";
 
 describe("buildVerifyReadme", () => {
   const readme = buildVerifyReadme({ evidence_id: "NK-0003" });
@@ -43,10 +39,11 @@ describe("buildVerifyReadme", () => {
     expect(readme).toMatch(/key that decrypts screenshot\.enc is NOT included/i);
   });
 
-  it("lists what the package cannot establish (spec §27)", () => {
-    for (const c of CANNOT_ESTABLISH) {
-      expect(readme).toContain(c);
-    }
+  it("has no limitations / 'cannot establish' section", () => {
+    expect(readme).not.toMatch(/WHAT THIS PACKAGE CANNOT ESTABLISH/i);
+    expect(readme).not.toMatch(/does not replace professional forensic/i);
+    expect(readme).not.toMatch(/legal admissibility/i);
+    expect(readme.trimEnd().endsWith("ask the person who exported this package.")).toBe(true);
   });
 
   it("defaults the id when none is given", () => {

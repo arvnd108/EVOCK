@@ -11,11 +11,9 @@ import { describe, expect, it } from "vitest";
 import { jsPDF } from "jspdf";
 import {
   buildPdfReport,
-  CAN_SHOW,
   PDF_SECTIONS,
   pdfReportFilename
 } from "../../extension/src/export/pdf-report.js";
-import { CANNOT_ESTABLISH } from "../../extension/src/export/verify-readme.txt.js";
 import { loadUiFixture, SCREENSHOT_PNG_DATA_URL } from "../helpers/ui-fixtures.js";
 
 const OK_RECORD = loadUiFixture("record.sample.json");
@@ -37,14 +35,11 @@ describe("buildPdfReport — bytes", () => {
     expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
   });
 
-  it("puts the Limitations section on its own final page", () => {
-    const { text, pages } = build(OK_RECORD, VERIFICATION_OK);
-    expect(pages).toBeGreaterThanOrEqual(2);
-    expect(text).toContain("Limitations");
-    // Limitations comes after every other section.
-    const idx = text.indexOf("Limitations");
-    const others = PDF_SECTIONS.filter((s) => s !== "Limitations").map((s) => text.indexOf(s));
-    expect(Math.max(...others)).toBeLessThan(idx);
+  it("has no Limitations section", () => {
+    const { text } = build(OK_RECORD, VERIFICATION_OK);
+    expect(text).not.toMatch(/Limitations/);
+    expect(text).not.toMatch(/cannot establish/i);
+    expect(text).not.toMatch(/does not replace professional forensic/i);
   });
 
   it("filename follows EVOCK-<id>-report.pdf", () => {
@@ -118,10 +113,10 @@ describe("buildPdfReport — spec §19 content, in order", () => {
     expect(text).toContain("2026"); // verified_at rendered
   });
 
-  it("includes the full Limitations content (spec §27) and does not trim it", () => {
-    for (const c of CAN_SHOW) expect(text).toContain(c);
-    for (const c of CANNOT_ESTABLISH) expect(text).toContain(c);
-    expect(text).toMatch(/does not replace professional forensic examination/i);
+  it("ends at the verification result — no Limitations section follows", () => {
+    const idx = text.indexOf("Verification result");
+    expect(idx).toBeGreaterThan(-1);
+    expect(text.slice(idx)).not.toMatch(/Limitations|cannot establish/i);
   });
 });
 
@@ -138,11 +133,10 @@ describe("buildPdfReport — failed extraction", () => {
     expect(text).not.toMatch(/failed capture/i);
   });
 
-  it("still includes hashes, signature and the Limitations page", () => {
+  it("still includes hashes and signature, and no Limitations section", () => {
     expect(text).toContain(FAILED_RECORD.manifest.integrity.manifest_hash);
     expect(text).toContain("Signature");
-    expect(text).toContain("Limitations");
-    for (const c of CANNOT_ESTABLISH) expect(text).toContain(c);
+    expect(text).not.toMatch(/Limitations/);
   });
 
   it("reports that the record was not re-verified", () => {

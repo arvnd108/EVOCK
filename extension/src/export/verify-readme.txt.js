@@ -28,20 +28,6 @@ export const HASHING_RECIPE = Object.freeze([
 ]);
 
 /**
- * What the package cannot establish — drawn from spec §27 / §36. Kept as data so
- * the PDF report's Limitations page and this README stay in step.
- * @type {readonly string[]}
- */
-export const CANNOT_ESTABLISH = Object.freeze([
-  "the truthfulness of the underlying conversation;",
-  "the real-world identity of an account owner;",
-  "hidden platform-side or server-side records;",
-  "sender IP information;",
-  "server-side content that was deleted before it was ever captured;",
-  "legal admissibility — whether a court will accept this evidence is not for any tool to determine."
-]);
-
-/**
  * Build the README.txt body for one exported package.
  *
  * @param {{ evidence_id?: string }} [args]
@@ -143,14 +129,5 @@ The AES-GCM key that decrypts screenshot.enc is NOT included in this package,
 by design. The ciphertext is shipped so the integrity chain is inspectable, but
 the plaintext screenshot can only be produced inside the owner's EVOCK vault.
 If you need the image itself, ask the person who exported this package.
-
-
-WHAT THIS PACKAGE CANNOT ESTABLISH
----------------------------------
-A verified signature shows the manifest has not changed since it was signed. It
-does not, on its own, establish:
-${CANNOT_ESTABLISH.map((l) => "  * " + l).join("\n")}
-
-EVOCK does not replace professional forensic examination or legal procedure.
 `;
 }
