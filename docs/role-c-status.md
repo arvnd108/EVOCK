@@ -2,8 +2,40 @@
 
 **Step 00 — Build pipeline, lint, project scripts (C1):** complete.
 **Step 01 — Fixture set (C2):** complete.
+**Step 02 — Static demo chat page (C7):** complete.
 **Tests:** `npm test` → 319 passing (303 + 16 new). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+---
+
+## Step 02 — Static demo chat page (C7)
+
+### Added
+
+| File | Notes |
+|---|---|
+| `demo/chat.html` | Zero JavaScript, one relative stylesheet, no images, no web fonts, no network requests. Renders a generic messaging screen: fictional-sample banner, header (contact `Mr. ABC B`, CSS monogram avatar — no image), a `1 September 2026` day separator, two incoming bubbles carrying the tamper-demo strings **verbatim** (`Don't try to hide.` / `I know where you live.`) each stamped `11:28 PM`, and an inert disabled composer. |
+| `demo/chat.css` | Neutral slate palette — deliberately not any real product's colours. Fixed dimensions (420 × 560 card, fixed header/composer heights), no animations, no `transition`, no `@font-face`, system font stack only, so layout boxes are machine-independent (only glyph anti-aliasing can differ across OSes, which does not change dimensions or structure). |
+
+Content matches `docs/EVOCK.md` §9's example input exactly, so extraction output is
+predictable, and §18's tamper text is present for the record-alteration demo.
+
+### Decisions
+
+- **`demo/chat-tampered.html` (optional) — not added.** The prompt leans against it and the
+  real §18 demo alters the *stored record* via `__tamperDemo`, not the page; a second HTML file
+  would only invite "which one do I capture?" confusion in the demo script.
+- **No manifest change.** The page is opened in an ordinary browser tab (`file://` or a static
+  server) and then Preserved — it is not loaded inside the extension, so it needs no
+  `web_accessible_resources` entry. This step's diff is confined to `demo/`.
+- The extension still has no bundler (step 00, Option 3), so `demo/` is not copied anywhere —
+  it is served/opened from the repo as-is.
+
+### Verified
+
+Served over `http://127.0.0.1` and loaded in a browser: renders as intended, network panel
+shows only `chat.html` + `chat.css` (both local), console is clean. `npm run lint` ignores
+`demo/` (not in an ESLint glob; no JS anyway); `npx prettier --check demo/` is clean.
 
 ---
 
@@ -153,5 +185,5 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ## Not yet started
 
-Steps 02–08: demo page, vault shell + timeline, detail view, verification UI,
+Steps 03–08: vault shell + timeline, detail view, verification UI,
 human review/edit, export, integration tests + copy audit.

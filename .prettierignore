@@ -4,4 +4,7 @@ package-lock.json
 *.log
 __pycache__/
 tests/fixtures/
-CHANGELOG.md
+
+# Prose is out of scope: Prettier here enforces JS/CSS/HTML consistency, not
+# Markdown reflow (which mangles hand-aligned tables and is owned per-author).
+*.md
