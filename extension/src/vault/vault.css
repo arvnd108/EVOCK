@@ -29,6 +29,12 @@
   --nk-neutral: #5b6774;
   --nk-neutral-bg: #eceef1;
 
+  /* AI-derived "check this" tint (detail view, honesty rule 1) */
+  --nk-caution: #6b5300;
+  --nk-caution-bg: #fbf4e2;
+  --nk-caution-border: #c8b78a;
+  --nk-caution-rule: #b9962f;
+
   /* Spacing scale */
   --nk-space-1: 4px;
   --nk-space-2: 8px;
@@ -316,4 +322,180 @@
   font-size: 13px;
   line-height: 1.6;
   color: var(--nk-text-muted);
+}
+
+/* --- Detail panel (step 04 / C3 part 2) --------------------------------- */
+
+.nk-detail {
+  margin-top: var(--nk-space-4);
+  padding: var(--nk-space-4);
+  background: var(--nk-surface);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius);
+}
+
+.nk-detail__header {
+  display: flex;
+  align-items: center;
+  gap: var(--nk-space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--nk-space-3);
+  border-bottom: 1px solid var(--nk-border);
+}
+
+.nk-detail__id {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.nk-detail__actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--nk-space-2);
+}
+
+.nk-detail__actions button {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.nk-detail__actions button:hover,
+.nk-detail__actions button:focus-visible {
+  border-color: var(--nk-accent);
+  outline: none;
+}
+
+.nk-detail__section {
+  margin-top: var(--nk-space-4);
+}
+
+.nk-detail__section-title {
+  margin: 0 0 var(--nk-space-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nk-text-muted);
+}
+
+.nk-detail__screenshot {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface-2);
+}
+
+.nk-kv {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: var(--nk-space-1) var(--nk-space-4);
+  font-size: 13px;
+}
+
+.nk-kv__key {
+  color: var(--nk-text-muted);
+}
+
+.nk-kv__val {
+  color: var(--nk-text);
+  overflow-wrap: anywhere;
+}
+
+.nk-kv__val--muted {
+  color: var(--nk-text-muted);
+  font-style: italic;
+}
+
+/* Honesty rule 1: AI-derived metadata is a visually distinct, always-labelled
+   tinted panel — never ground truth sitting beside the screenshot. */
+.nk-derived {
+  border: 1px solid var(--nk-caution-border);
+  border-left: 4px solid var(--nk-caution-rule);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-caution-bg);
+  padding: var(--nk-space-3);
+}
+
+.nk-derived__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--nk-caution);
+}
+
+.nk-derived__info {
+  border: 1px solid var(--nk-caution);
+  color: var(--nk-caution);
+  border-radius: 999px;
+  width: 15px;
+  height: 15px;
+  line-height: 13px;
+  text-align: center;
+  font-size: 11px;
+  font-style: normal;
+  cursor: help;
+}
+
+.nk-derived__note {
+  margin: var(--nk-space-1) 0 var(--nk-space-3);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--nk-caution);
+}
+
+.nk-derived__unavailable {
+  margin: var(--nk-space-2) 0 0;
+  font-size: 13px;
+  color: var(--nk-caution);
+}
+
+.nk-integrity__row {
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) 1fr auto;
+  align-items: center;
+  gap: var(--nk-space-1) var(--nk-space-3);
+  font-size: 13px;
+  padding: 2px 0;
+}
+
+.nk-integrity__key {
+  color: var(--nk-text-muted);
+}
+
+.nk-integrity__val {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.nk-copy {
+  font: inherit;
+  font-size: 12px;
+  padding: 1px 8px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-text-muted);
+  cursor: pointer;
+}
+
+.nk-copy:hover,
+.nk-copy:focus-visible {
+  border-color: var(--nk-accent);
+  color: var(--nk-text);
+  outline: none;
 }

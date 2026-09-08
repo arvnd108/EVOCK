@@ -4,8 +4,34 @@
 **Step 01 — Fixture set (C2):** complete.
 **Step 02 — Static demo chat page (C7):** complete.
 **Step 03 — Vault shell and chronological timeline (C3, part 1):** complete.
-**Tests:** `npm test` → 358 passing (+39 vault). `python3 tests/run-tests.py` → 20/20.
+**Step 04 — Evidence detail view (C3, part 2):** complete.
+**Tests:** `npm test` → 371 passing (+13 detail). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+---
+
+## Step 04 — Evidence detail view (C3, part 2)
+
+### Added
+
+| File | Notes |
+|---|---|
+| `extension/src/vault/components/detail-panel.js` | `createDetailPanel({ detailApi, onVerify, onExport, onClose })` → `{ element, show(id), close() }`. `chromeDetailApi` = one `GET_EVIDENCE` round-trip. Header (id + Verify / Export ▾ / Close), screenshot, derived-metadata block, capture context (incl. **Device time**), integrity block. `formatDeviceTime()` renders the ISO instant + offset locale-independently. |
+| `extension/src/vault/components/derived-metadata-block.js` | **Honesty rule 1.** Tinted `.nk-derived` panel, always-on-screen "AI-derived metadata" label, ⓘ affordance + a plain-text note that a vision model can misread names/timestamps/small text (spec §25.1). Failed extraction → calm "AI extraction unavailable — no derived metadata for this record", never "failed capture". Null platform/contact → Unknown / unknown account; empty messages → "No message text extracted". |
+| `extension/src/vault/components/integrity-block.js` | Three SHA-256 hashes, each truncated in the row, full value in `title` + on the Copy button (Clipboard API; never logged, never in a URL). Signature `✓ ECDSA P-256`, **Trusted timestamp** on its own row (`not_configured` → "Not configured", never hidden, never folded into Device time — **honesty rule 2**, spec §25.11), Encryption `✓ AES-GCM 256`. |
+| `tests/vault/detail-panel.test.js` | 13 jsdom tests: full render, two-separate-rows check, failed-extraction, null-fields, object-URL created-on-show / revoked-on-close / 20× no-leak / revoked-before-renavigate, and "no hash reaches console.* or an href/src". |
+
+### Changed
+
+- `vault.css` — `.nk-detail*`, `.nk-derived*`, `.nk-integrity*`, `.nk-kv*`, `.nk-copy` classes; four `--nk-caution*` tokens for the AI-derived tint (kept in the shared `:root` block).
+- `vault.html` — a `#vault-detail` mount after `#vault-body`.
+- `vault.js` — the auto-bootstrap now creates a detail panel and opens it on row click (scrolls it into view); `initVault`'s signature and tests are unchanged.
+
+### Decisions / findings
+
+- **Screenshot transport — resolved, not open.** `docs/role-b-status.md` §5 worried about a worker-side `URL.createObjectURL`. Role A already switched `GET_EVIDENCE` to return a base64 `screenshotDataUrl` (see the comment in `background/service-worker.js`). The panel converts that to a `Blob`, creates **its own** object URL for the `<img>`, and revokes it on close / re-navigate — so every detail-view object URL is released (Task 6, DoD).
+- **Verify / Export buttons are present but inert.** Wiring lands in step 05 (`onVerify`) and steps 06–07 (`onExport`). The bootstrap does not pass those callbacks yet.
+- Contact still comes from `manifest.ai_derived_metadata.data.contact_name` here (the detail view has the full manifest), so the timeline's `contact_label` gap does not affect this screen.
 
 ---
 
@@ -220,5 +246,5 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ## Not yet started
 
-Steps 04–08: detail view, verification UI, human review/edit, export,
-integration tests + copy audit.
+Steps 05–08: verification UI, human review/edit, export, integration tests +
+copy audit.

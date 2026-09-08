@@ -12,6 +12,7 @@
  */
 
 import { envelope, MSG } from "../shared/messages.js";
+import { createDetailPanel } from "./components/detail-panel.js";
 import { applyFilters, defaultFilterState, renderFilters } from "./components/filters.js";
 import { renderEmptyState } from "./components/empty-state.js";
 import { renderTimeline } from "./components/timeline.js";
@@ -139,7 +140,27 @@ function renderNoMatches() {
 if (typeof document !== "undefined") {
   const auto = document.querySelector("[data-vault-autoinit]");
   if (auto) {
-    initVault(auto).catch((err) => {
+    const detailMount = document.getElementById("vault-detail");
+    const panel = detailMount ? createDetailPanel() : null;
+    if (panel) detailMount.append(panel.element);
+
+    initVault(auto, {
+      onSelect: panel
+        ? (id) => {
+            panel.show(id).then(
+              () => panel.element.scrollIntoView({ behavior: "smooth", block: "start" }),
+              (err) => {
+                panel.element.hidden = false;
+                panel.element.replaceChildren();
+                const box = document.createElement("div");
+                box.className = "nk-vault__error";
+                box.textContent = `Could not open ${id}: ${err?.message || err}`;
+                panel.element.append(box);
+              }
+            );
+          }
+        : undefined
+    }).catch((err) => {
       auto.replaceChildren();
       const box = document.createElement("div");
       box.className = "nk-vault__error";
