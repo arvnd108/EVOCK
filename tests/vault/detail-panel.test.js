@@ -66,13 +66,13 @@ describe("detail panel — full record", () => {
     expect(img.getAttribute("src")).toBe("blob:mock-1");
     expect(img.alt).toContain("NK-0001");
 
-    // AI-derived block
+    // AI-derived block — tinted panel, no header/warning/edit chrome
     const derived = el.querySelector(".nk-derived");
     expect(derived).not.toBeNull();
-    expect(derived.querySelector(".nk-derived__label").textContent).toContain(
-      "AI-derived metadata"
-    );
-    expect(derived.querySelector(".nk-derived__note").textContent).toMatch(/misread/i);
+    expect(derived.querySelector(".nk-derived__label")).toBeNull();
+    expect(derived.querySelector(".nk-derived__note")).toBeNull();
+    expect(derived.querySelector(".nk-derived__info")).toBeNull();
+    expect(derived.querySelector(".nk-derived__edit")).toBeNull();
     expect(derived.textContent).toContain("WhatsApp");
     expect(derived.textContent).toContain("Mr. ABC B");
     expect(derived.textContent).toContain("11:28 PM");
@@ -267,15 +267,18 @@ describe("integrity block — hashes never leak", () => {
 });
 
 describe("derived-metadata block", () => {
-  it("is a tinted, always-labelled panel with an info affordance", () => {
+  it("is a tinted panel with no label, warning note, info affordance or edit control", () => {
     const el = renderDerivedMetadataBlock(
       loadUiFixture("record.sample").manifest.ai_derived_metadata
     );
     expect(el.className).toContain("nk-derived");
-    expect(el.querySelector(".nk-derived__label").textContent).toContain("AI-derived metadata");
-    const info = el.querySelector(".nk-derived__info");
-    expect(info).not.toBeNull();
-    expect(info.title).toMatch(/misread/i);
+    expect(el.querySelector(".nk-derived__label")).toBeNull();
+    expect(el.querySelector(".nk-derived__note")).toBeNull();
+    expect(el.querySelector(".nk-derived__info")).toBeNull();
+    expect(el.querySelector(".nk-derived__edit")).toBeNull();
+    expect(el.textContent).not.toMatch(/misread/i);
+    // the underlying metadata is still rendered
+    expect(el.textContent).toContain("WhatsApp");
   });
 
   it("failed extraction → calm unavailable message, no data rows", () => {

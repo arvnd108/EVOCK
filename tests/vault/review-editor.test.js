@@ -247,21 +247,12 @@ describe("detail panel — version-aware", () => {
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
   });
 
-  it("[Edit metadata] on the latest version calls onEditMetadata with that version's data", async () => {
-    const onEditMetadata = vi.fn();
-    const panel = createDetailPanel({ detailApi: api(), onEditMetadata });
-    await panel.show("NK-0007");
-
-    panel.element.querySelector(".nk-derived__edit").click();
-    expect(onEditMetadata).toHaveBeenCalledTimes(1);
-    const [id, data] = onEditMetadata.mock.calls[0];
-    expect(id).toBe("NK-0007");
-    expect(data.contact_name).toBe("Mr. A. Bakshi");
-  });
-
-  it("an older version has no [Edit metadata] control", async () => {
+  it("no version shows an Edit metadata control", async () => {
     const panel = createDetailPanel({ detailApi: api(), onEditMetadata: vi.fn() });
     await panel.show("NK-0007");
+    // latest version
+    expect(panel.element.querySelector(".nk-derived__edit")).toBeNull();
+    // older version
     panel.element.querySelector('.nk-versions__row[data-version="1"]').click();
     expect(panel.element.querySelector(".nk-derived__edit")).toBeNull();
   });
