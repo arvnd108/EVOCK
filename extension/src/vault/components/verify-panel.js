@@ -8,16 +8,15 @@
  *
  * This module does NOT compute or canonicalize anything — it reads results.
  *  - recorded hash  ← `manifest.integrity.{screenshot,metadata,manifest}_hash`
- *  - current hash   ← `result.current_integrity.{...}_hash`  (proposed Role B
- *                     addition — mirrors `manifest.integrity`; see
- *                     docs/role-c-status.md. Absent today → the current slot
- *                     shows "not reported", never a locally-derived value.)
+ *  - current hash   ← `result.current_integrity.{...}_hash` (supplied by Role B's
+ *                     verifier; mirrors `manifest.integrity`). If a result ever
+ *                     lacks it the current slot shows "not reported", never a
+ *                     locally-derived value.
  *  - `details[]`     ← rendered VERBATIM (they are the frozen VERIFY_DETAILS).
  */
 
 import { envelope, MSG } from "../../shared/messages.js";
-import { formatDeviceTime } from "./detail-panel.js";
-import { formatDay } from "./record-card.js";
+import { formatDay, formatDeviceTime } from "./record-card.js";
 
 export const HONEST_FOOTER =
   "Verification shows that the stored record has not changed since preservation. " +

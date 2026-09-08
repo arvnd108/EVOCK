@@ -1,0 +1,256 @@
+{
+  "_note": "StoredEvidenceRecord (Building Plan §5.4) + versions[] (Role C step 06, proposed schema 1.1). In JSON, screenshot_ciphertext and iv are base64 strings; a real record holds ArrayBuffer. `manifest` mirrors the LATEST version (versions[last].manifest). An edit never overwrites: it appends a new signed version. The screenshot bytes and screenshot_hash are shared and identical across every version.",
+  "evidence_id": "NK-0007",
+  "manifest": {
+    "schema_version": "1.0",
+    "evidence_id": "NK-0001",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-09-01T23:31:14+05:30",
+      "screenshot_width": 1,
+      "screenshot_height": 1,
+      "mime_type": "image/png"
+    },
+    "visual_artifact": {
+      "type": "screenshot",
+      "storage": "encrypted",
+      "encryption": {
+        "algorithm": "AES-GCM",
+        "key_length": 256,
+        "iv": "yv66vv7erb7u3d7e"
+      }
+    },
+    "ai_derived_metadata": {
+      "provider": "demo",
+      "model": "demo-offline-v1",
+      "status": "ok",
+      "extracted_at": "2026-09-01T23:31:19+05:30",
+      "data": {
+        "platform": "WhatsApp",
+        "contact_name": "Mr. A. Bakshi",
+        "messages": [
+          {
+            "sender": "Mr. A. Bakshi",
+            "text": "Don’t try to hide.",
+            "visible_timestamp": "11:28 PM",
+            "type": "incoming"
+          },
+          {
+            "sender": "Mr. A. Bakshi",
+            "text": "I know where you live.",
+            "visible_timestamp": "11:28 PM",
+            "type": "incoming"
+          }
+        ],
+        "visible_time": "11:28 PM",
+        "date": "1 September 2026"
+      }
+    },
+    "integrity": {
+      "hash_algorithm": "SHA-256",
+      "screenshot_hash": "83a91f2c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8",
+      "metadata_hash": "c4f28401c5501976ab6e1dc65faf5a2312e28835c0affdf6abb699cae18ffca9",
+      "manifest_hash": "c8c09bd999d413d8d0291b24a0b844e1fa242ab3a6505ce97d3895c4b9ebf6a5"
+    },
+    "signature": {
+      "algorithm": "ECDSA-P256-SHA256",
+      "public_key_jwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "PLACEHOLDER_X_COORDINATE_BASE64URL_43_CHARS_AAAAA",
+        "y": "PLACEHOLDER_Y_COORDINATE_BASE64URL_43_CHARS_BBBBB",
+        "ext": true,
+        "key_ops": [
+          "verify"
+        ]
+      },
+      "signature": "c2lnLU5LLTAwMDctdjI=",
+      "signed_at": "2026-09-02T09:04:11+05:30"
+    },
+    "timestamp": {
+      "device_capture_time": "2026-09-01T23:31:14+05:30",
+      "trusted_timestamp_status": "not_configured",
+      "trusted_timestamp_token": null
+    }
+  },
+  "screenshot_ciphertext": "UExBQ0VIT0xERVJfQUVTX0dDTV9DSVBIRVJURVhUX0ZPUl9BXzF4MV9QTkc=",
+  "iv": "yv66vv7erb7u3d7e",
+  "created_at": "2026-09-01T23:31:14+05:30",
+  "platform_label": "WhatsApp",
+  "last_verification": null,
+  "versions": [
+    {
+      "version": 1,
+      "origin": "ai",
+      "author": null,
+      "note": null,
+      "created_at": "2026-09-01T23:31:20+05:30",
+      "manifest": {
+        "schema_version": "1.0",
+        "evidence_id": "NK-0001",
+        "source": {
+          "capture_method": "browser_extension.captureVisibleTab",
+          "url": "https://web.whatsapp.com/",
+          "domain": "web.whatsapp.com",
+          "tab_title": "WhatsApp"
+        },
+        "capture": {
+          "device_captured_at": "2026-09-01T23:31:14+05:30",
+          "screenshot_width": 1,
+          "screenshot_height": 1,
+          "mime_type": "image/png"
+        },
+        "visual_artifact": {
+          "type": "screenshot",
+          "storage": "encrypted",
+          "encryption": {
+            "algorithm": "AES-GCM",
+            "key_length": 256,
+            "iv": "yv66vv7erb7u3d7e"
+          }
+        },
+        "ai_derived_metadata": {
+          "provider": "demo",
+          "model": "demo-offline-v1",
+          "status": "ok",
+          "extracted_at": "2026-09-01T23:31:19+05:30",
+          "data": {
+            "platform": "WhatsApp",
+            "contact_name": "Mr. ABC B",
+            "messages": [
+              {
+                "sender": "Mr. ABC B",
+                "text": "Dont try to hide",
+                "visible_timestamp": "11:28 PM",
+                "type": "incoming"
+              },
+              {
+                "sender": "Mr. ABC B",
+                "text": "I know where you Iive",
+                "visible_timestamp": "11:28 PM",
+                "type": "incoming"
+              }
+            ],
+            "visible_time": "11:28 PM",
+            "date": "1 September 2026"
+          }
+        },
+        "integrity": {
+          "hash_algorithm": "SHA-256",
+          "screenshot_hash": "83a91f2c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8",
+          "metadata_hash": "7b0f1ff7dfd75c0fa08927f20d05eb1387330612139bebcf0b5e69c6ca8f2ecc",
+          "manifest_hash": "b048dbf43c594bf2f9a9188f1809552db44f34c0420e7c6398d782d9bd66e9ec"
+        },
+        "signature": {
+          "algorithm": "ECDSA-P256-SHA256",
+          "public_key_jwk": {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "PLACEHOLDER_X_COORDINATE_BASE64URL_43_CHARS_AAAAA",
+            "y": "PLACEHOLDER_Y_COORDINATE_BASE64URL_43_CHARS_BBBBB",
+            "ext": true,
+            "key_ops": [
+              "verify"
+            ]
+          },
+          "signature": "c2lnLU5LLTAwMDctdjE=",
+          "signed_at": "2026-09-01T23:31:20+05:30"
+        },
+        "timestamp": {
+          "device_capture_time": "2026-09-01T23:31:14+05:30",
+          "trusted_timestamp_status": "not_configured",
+          "trusted_timestamp_token": null
+        }
+      }
+    },
+    {
+      "version": 2,
+      "origin": "human",
+      "author": null,
+      "note": "Corrected the misread contact name and two message strings against the screenshot.",
+      "created_at": "2026-09-02T09:04:11+05:30",
+      "manifest": {
+        "schema_version": "1.0",
+        "evidence_id": "NK-0001",
+        "source": {
+          "capture_method": "browser_extension.captureVisibleTab",
+          "url": "https://web.whatsapp.com/",
+          "domain": "web.whatsapp.com",
+          "tab_title": "WhatsApp"
+        },
+        "capture": {
+          "device_captured_at": "2026-09-01T23:31:14+05:30",
+          "screenshot_width": 1,
+          "screenshot_height": 1,
+          "mime_type": "image/png"
+        },
+        "visual_artifact": {
+          "type": "screenshot",
+          "storage": "encrypted",
+          "encryption": {
+            "algorithm": "AES-GCM",
+            "key_length": 256,
+            "iv": "yv66vv7erb7u3d7e"
+          }
+        },
+        "ai_derived_metadata": {
+          "provider": "demo",
+          "model": "demo-offline-v1",
+          "status": "ok",
+          "extracted_at": "2026-09-01T23:31:19+05:30",
+          "data": {
+            "platform": "WhatsApp",
+            "contact_name": "Mr. A. Bakshi",
+            "messages": [
+              {
+                "sender": "Mr. A. Bakshi",
+                "text": "Don’t try to hide.",
+                "visible_timestamp": "11:28 PM",
+                "type": "incoming"
+              },
+              {
+                "sender": "Mr. A. Bakshi",
+                "text": "I know where you live.",
+                "visible_timestamp": "11:28 PM",
+                "type": "incoming"
+              }
+            ],
+            "visible_time": "11:28 PM",
+            "date": "1 September 2026"
+          }
+        },
+        "integrity": {
+          "hash_algorithm": "SHA-256",
+          "screenshot_hash": "83a91f2c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8",
+          "metadata_hash": "c4f28401c5501976ab6e1dc65faf5a2312e28835c0affdf6abb699cae18ffca9",
+          "manifest_hash": "c8c09bd999d413d8d0291b24a0b844e1fa242ab3a6505ce97d3895c4b9ebf6a5"
+        },
+        "signature": {
+          "algorithm": "ECDSA-P256-SHA256",
+          "public_key_jwk": {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "PLACEHOLDER_X_COORDINATE_BASE64URL_43_CHARS_AAAAA",
+            "y": "PLACEHOLDER_Y_COORDINATE_BASE64URL_43_CHARS_BBBBB",
+            "ext": true,
+            "key_ops": [
+              "verify"
+            ]
+          },
+          "signature": "c2lnLU5LLTAwMDctdjI=",
+          "signed_at": "2026-09-02T09:04:11+05:30"
+        },
+        "timestamp": {
+          "device_capture_time": "2026-09-01T23:31:14+05:30",
+          "trusted_timestamp_status": "not_configured",
+          "trusted_timestamp_token": null
+        }
+      }
+    }
+  ]
+}

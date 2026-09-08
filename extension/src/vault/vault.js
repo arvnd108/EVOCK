@@ -16,6 +16,7 @@ import { createDetailPanel } from "./components/detail-panel.js";
 import { applyFilters, defaultFilterState, renderFilters } from "./components/filters.js";
 import { renderEmptyState } from "./components/empty-state.js";
 import { renderTimeline } from "./components/timeline.js";
+import { createReviewController } from "./components/review-editor.js";
 import { createVerifyPanel } from "./components/verify-panel.js";
 
 /**
@@ -167,7 +168,21 @@ if (typeof document !== "undefined") {
         })
       : null;
 
-    const panel = detailMount
+    /** @type {ReturnType<typeof createDetailPanel> | null} */
+    let panel = null;
+
+    const review = detailMount
+      ? createReviewController({
+          onRevised: (id) => {
+            // The record gained a version and last_verification is now stale.
+            verify?.close();
+            controller?.applyVerification(id, null);
+            panel?.show(id).catch(() => {});
+          }
+        })
+      : null;
+
+    panel = detailMount
       ? createDetailPanel({
           onVerify: verify
             ? (id, manifest) => {
@@ -175,17 +190,28 @@ if (typeof document !== "undefined") {
                 verify.element.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             : undefined,
-          onClose: () => verify?.close()
+          onEditMetadata: review
+            ? (id, data) => {
+                review.open({ evidenceId: id, data });
+                review.element.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            : undefined,
+          onClose: () => {
+            verify?.close();
+            review?.close();
+          }
         })
       : null;
 
     if (panel) detailMount.append(panel.element);
     if (verify) detailMount.append(verify.element);
+    if (review) detailMount.append(review.element);
 
     initVault(auto, {
       onSelect: panel
         ? (id) => {
             verify?.close();
+            review?.close();
             panel.show(id).then(
               () => panel.element.scrollIntoView({ behavior: "smooth", block: "start" }),
               (err) => {
