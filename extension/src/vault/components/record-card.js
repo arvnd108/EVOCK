@@ -5,10 +5,11 @@
  * contact label, verification pill. Metadata only — this module never touches a
  * screenshot, ciphertext or `vaultRepo`.
  *
- * CONTACT GAP (tracked in docs/role-c-status.md): the real `projectListItem`
- * does not yet expose the AI-derived contact name. This reads `item.contact_label`
- * — the field Role C has asked Role B to add — and falls back to "unknown
- * account" when it is absent or null, per Role C.md §C3.
+ * `item.contact_label` is supplied by Role B's `projectListItem`; this still
+ * falls back to "unknown account" when it is absent or null, per Role C.md §C3.
+ *
+ * This module also owns the small locale-independent date/time formatters shared
+ * across the vault components.
  */
 
 const STALE_AFTER_DAYS = 7;
@@ -26,6 +27,22 @@ export function formatDay(iso) {
   if (!m) return "Unknown date";
   const [, y, mo, d] = m;
   return `${Number(d)} ${MONTHS[Number(mo) - 1] ?? "?"} ${y}`;
+}
+
+/**
+ * "2026-09-01T23:31:14+05:30" -> "1 Sep 2026, 23:31:14 +05:30".
+ * Parsed from the string's own fields — locale-independent, no `Date`.
+ * @param {string} iso
+ * @returns {string}
+ */
+export function formatDeviceTime(iso) {
+  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?/.exec(
+    String(iso || "")
+  );
+  if (!m) return String(iso || "unknown");
+  const [, date, time, offsetRaw] = m;
+  const offset = !offsetRaw || offsetRaw === "Z" ? offsetRaw || "" : ` ${offsetRaw}`;
+  return `${formatDay(date)}, ${time}${offset ? offset : ""}`.trim();
 }
 
 /**

@@ -15,9 +15,13 @@
  */
 
 import { envelope, MSG } from "../../shared/messages.js";
-import { formatDay } from "./record-card.js";
+import { formatDeviceTime } from "./record-card.js";
 import { renderDerivedMetadataBlock } from "./derived-metadata-block.js";
 import { renderIntegrityBlock } from "./integrity-block.js";
+import { renderVersionHistory } from "./review-editor.js";
+
+// Re-exported for callers/tests that imported it from here in step 04.
+export { formatDeviceTime } from "./record-card.js";
 
 /** Production seam: GET_EVIDENCE -> { manifest, created_at, ..., screenshotDataUrl }. */
 export const chromeDetailApi = {
@@ -33,21 +37,6 @@ export const chromeDetailApi = {
     return res;
   }
 };
-
-/**
- * "2026-09-01T23:31:14+05:30" -> "1 Sep 2026, 23:31:14 +05:30".
- * Parsed from the string's own fields — locale-independent, no Date.
- * @param {string} iso
- */
-export function formatDeviceTime(iso) {
-  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?/.exec(
-    String(iso || "")
-  );
-  if (!m) return String(iso || "unknown");
-  const [, date, time, offsetRaw] = m;
-  const offset = !offsetRaw || offsetRaw === "Z" ? offsetRaw || "" : ` ${offsetRaw}`;
-  return `${formatDay(date)}, ${time}${offset ? offset : ""}`.trim();
-}
 
 /**
  * @param {string} dataUrl "data:image/png;base64,...."
@@ -67,12 +56,33 @@ function dataUrlToBlob(dataUrl) {
 }
 
 /**
+ * A record's version list. Pre-`versions[]` records (a single AI-derived
+ * manifest) become one implicit version so the panel is uniform either way.
+ * @param {object} res GET_EVIDENCE response
+ * @returns {Array<{ version: number, origin: string, created_at: string, manifest: object }>}
+ */
+export function normalizeVersions(res) {
+  if (Array.isArray(res.versions) && res.versions.length > 0) return res.versions;
+  return [
+    {
+      version: 1,
+      origin: "ai",
+      author: null,
+      note: null,
+      created_at: res.manifest?.signature?.signed_at || res.created_at || null,
+      manifest: res.manifest || {}
+    }
+  ];
+}
+
+/**
  * Create a reusable detail panel.
  *
  * @param {{
  *   detailApi?: { get: (id: string) => Promise<object> },
- *   onVerify?: (id: string) => void,
+ *   onVerify?: (id: string, manifest: object) => void,
  *   onExport?: (id: string) => void,
+ *   onEditMetadata?: (id: string, data: object|null) => void,
  *   onClose?: () => void
  * }} [opts]
  * @returns {{ element: HTMLElement, show: (id: string) => Promise<void>, close: () => void }}
@@ -81,6 +91,7 @@ export function createDetailPanel({
   detailApi = chromeDetailApi,
   onVerify,
   onExport,
+  onEditMetadata,
   onClose
 } = {}) {
   const element = document.createElement("section");
@@ -89,6 +100,8 @@ export function createDetailPanel({
 
   /** @type {string|null} */
   let objectUrl = null;
+  /** @type {{ evidenceId: string, res: object, versions: any[] } | null} */
+  let current = null;
 
   function releaseImage() {
     if (objectUrl) {
@@ -99,9 +112,24 @@ export function createDetailPanel({
 
   function close() {
     releaseImage();
+    current = null;
     element.replaceChildren();
     element.hidden = true;
     onClose?.();
+  }
+
+  function renderVersion(selected) {
+    if (!current) return;
+    const { evidenceId, res, versions } = current;
+    element.replaceChildren(
+      buildBody(evidenceId, res, versions, selected, objectUrl, {
+        onVerify,
+        onExport,
+        onEditMetadata,
+        onSelectVersion: renderVersion,
+        close
+      })
+    );
   }
 
   async function show(evidenceId) {
@@ -110,25 +138,34 @@ export function createDetailPanel({
     const res = await detailApi.get(evidenceId);
     const blob = dataUrlToBlob(res.screenshotDataUrl);
     objectUrl = URL.createObjectURL(blob);
-    element.replaceChildren(buildBody(evidenceId, res, objectUrl, { onVerify, onExport, close }));
+    const versions = normalizeVersions(res);
+    current = { evidenceId, res, versions };
+    renderVersion(versions.length); // default to the latest version
     element.hidden = false;
   }
 
   return { element, show, close };
 }
 
-function buildBody(evidenceId, res, imageUrl, { onVerify, onExport, close }) {
-  const frag = document.createDocumentFragment();
-  const manifest = res.manifest || {};
+function buildBody(evidenceId, res, versions, selected, imageUrl, handlers) {
+  const { onVerify, onExport, onEditMetadata, onSelectVersion, close } = handlers;
+  const total = versions.length;
+  const clamped = Math.min(Math.max(selected, 1), total);
+  const active = versions[clamped - 1];
+  const manifest = active?.manifest || res.manifest || {};
+  const isLatest = clamped === total;
   const source = manifest.source || {};
   const capture = manifest.capture || {};
+
+  const frag = document.createDocumentFragment();
 
   // --- Header: id + actions ---
   const header = document.createElement("div");
   header.className = "nk-detail__header";
   const id = document.createElement("h2");
   id.className = "nk-detail__id";
-  id.textContent = evidenceId;
+  id.textContent =
+    total > 1 ? `${evidenceId} · v${clamped}${isLatest ? " (latest)" : ""}` : evidenceId;
   const actions = document.createElement("div");
   actions.className = "nk-detail__actions";
   actions.append(
@@ -140,7 +177,22 @@ function buildBody(evidenceId, res, imageUrl, { onVerify, onExport, close }) {
   header.append(id, actions);
   frag.append(header);
 
-  // --- Original screenshot ---
+  // --- Version history (only once there is more than one version) ---
+  if (total > 1) {
+    const vs = section("Versions");
+    const note = document.createElement("p");
+    note.className = "nk-detail__version-note";
+    note.textContent =
+      "A correction is kept as a new signed version. Selecting one below shows that " +
+      "version's metadata; the screenshot is the same for every version.";
+    vs.append(
+      note,
+      renderVersionHistory(versions, { selected: clamped, onSelect: onSelectVersion })
+    );
+    frag.append(vs);
+  }
+
+  // --- Original screenshot (shared across versions) ---
   const shot = section("Original screenshot");
   const img = document.createElement("img");
   img.className = "nk-detail__screenshot";
@@ -149,9 +201,17 @@ function buildBody(evidenceId, res, imageUrl, { onVerify, onExport, close }) {
   shot.append(img);
   frag.append(shot);
 
-  // --- Visible information (AI-derived) ---
+  // --- Visible information (AI-derived / this version) ---
   const visible = section("Visible information");
-  visible.append(renderDerivedMetadataBlock(manifest.ai_derived_metadata || null));
+  visible.append(
+    renderDerivedMetadataBlock(manifest.ai_derived_metadata || null, {
+      // Corrections build on the latest version only.
+      onEdit:
+        onEditMetadata && isLatest
+          ? () => onEditMetadata(evidenceId, manifest.ai_derived_metadata?.data ?? null)
+          : undefined
+    })
+  );
   frag.append(visible);
 
   // --- Capture context ---

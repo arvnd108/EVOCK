@@ -10,12 +10,8 @@
  * Fully deterministic — no `Date.now()`, no `Math.random()` — so timeline,
  * grouping, filter and sort tests reproduce byte-for-byte on every machine.
  *
- * NOTE (coordination, step 03): `projectListItem` does NOT expose the AI-derived
- * contact name, yet the timeline row in Role C.md §C3 shows a contact column.
- * That is a Role B contract gap (tracked in docs/role-c-status.md). These items
- * carry `contact_label` — the field Role C has asked Role B to add to
- * `projectListItem` — with some rows deliberately `null` to exercise the vault's
- * "unknown account" fallback. If Role B declines the field, drop it here.
+ * Items carry `contact_label` (supplied by Role B's `projectListItem`), with some
+ * rows deliberately `null` to exercise the vault's "unknown account" fallback.
  */
 
 const PLATFORMS = ["WhatsApp", "Instagram", "Website", "Unknown"];

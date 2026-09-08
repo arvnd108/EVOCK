@@ -17,9 +17,12 @@ const MISREAD_NOTE =
 /**
  * @param {import("../../shared/types.js").ManifestAiDerivedMetadata|null} aiDerivedMetadata
  *   i.e. `manifest.ai_derived_metadata`
+ * @param {{ onEdit?: () => void }} [opts] when `onEdit` is given an
+ *   `[Edit metadata]` control is shown (Role C step 06). Only wire it for the
+ *   LATEST version — corrections build on the latest, never on an old one.
  * @returns {HTMLElement} `<section class="nk-derived">`
  */
-export function renderDerivedMetadataBlock(aiDerivedMetadata) {
+export function renderDerivedMetadataBlock(aiDerivedMetadata, { onEdit } = {}) {
   const root = document.createElement("section");
   root.className = "nk-derived";
 
@@ -33,6 +36,15 @@ export function renderDerivedMetadataBlock(aiDerivedMetadata) {
   info.title = MISREAD_NOTE;
   label.append(document.createTextNode("AI-derived metadata"), info);
   root.append(label);
+
+  if (onEdit) {
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "nk-derived__edit";
+    edit.textContent = "Edit metadata";
+    edit.addEventListener("click", () => onEdit());
+    root.append(edit);
+  }
 
   const failed =
     !aiDerivedMetadata || aiDerivedMetadata.status === "failed" || aiDerivedMetadata.data == null;

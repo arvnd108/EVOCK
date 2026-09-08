@@ -24,6 +24,14 @@ export const MSG = Object.freeze({
   GET_EVIDENCE: "GET_EVIDENCE",
   /** vault -> worker: recompute hashes + check signature. payload: { evidence_id } -> VerificationResult */
   VERIFY_EVIDENCE: "VERIFY_EVIDENCE",
+  /**
+   * vault -> worker: record a human-corrected version of the AI metadata.
+   * payload: { evidence_id, data, note } -> { ok, record }.
+   * Role B's evidence core re-canonicalizes / re-hashes / re-signs and appends a
+   * new entry to `versions[]` — Role C never signs. (Role C step 06; worker route
+   * + `reviseMetadata` are a Role B/A follow-up, see Role B Prompts/12.)
+   */
+  REVISE_METADATA: "REVISE_METADATA",
   /** vault -> worker: export a human-readable PDF. payload: { evidence_id } -> { downloadId } */
   EXPORT_PDF: "EXPORT_PDF",
   /** vault -> worker: export a machine-readable ZIP. payload: { evidence_id } -> { downloadId } */

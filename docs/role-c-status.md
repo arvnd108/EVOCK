@@ -6,8 +6,28 @@
 **Step 03 — Vault shell and chronological timeline (C3, part 1):** complete.
 **Step 04 — Evidence detail view (C3, part 2):** complete.
 **Step 05 — Verification UI (C5):** complete.
-**Tests:** `npm test` → 385 passing (+14 verify). `python3 tests/run-tests.py` → 20/20.
+**Step 06 — Human review / edit of AI metadata (C4):** complete.
+**Tests:** `npm test` → 407 passing (+15 review). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+## Contract items resolved by Role B
+
+- **`contact_label` on `list()`** (asked at step 03) — **landed** in `4f6960b` (Role B step 11).
+  `projectListItem` now returns it; the timeline shows real contact names. Role C's
+  "unknown account" fallback stays as defensive code.
+- **`current_integrity` on `VerificationResult`** (asked at step 05) — **landed** in `4f6960b`.
+  `verifyEvidence` returns the recomputed hashes on every path; the MODIFIED verify panel shows a
+  real recorded-vs-current pair. Role C's "not reported by the verifier" fallback stays defensive.
+
+## Contract items open (asked at step 06 — `Role B Prompts/12`)
+
+- `versions[]` on `StoredEvidenceRecord` + `reviseMetadata()` in `evidence/index.js`.
+- `REVISE_METADATA` worker route (added to `MSG` already); `GET_EVIDENCE` returning `versions`.
+- `verifyEvidence(id, { version })` to verify a specific past version.
+
+Until they land, the review editor opens and validates but a save fails gracefully ("The
+correction was not saved…"), and the detail view renders every record as a single implicit
+version.
 
 ---
 
@@ -282,6 +302,46 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ---
 
+## Step 06 — Human review / edit of AI metadata (C4)
+
+### Task 0 decision — versioned-record shape
+
+**Chosen: `versions[]` inside the record (Option A), not separate linked records.** One
+`StoredEvidenceRecord` stays one timeline row; the encrypted screenshot is stored once and shared
+by every version; `created_at` (the timeline anchor) never moves. Full shape and the re-sign
+contract are in `Role B Prompts/12-versioned-records-and-revise.md`. `record.manifest` always
+mirrors the latest version; `last_verification` resets to `null` on every revision.
+
+### Added
+
+| File | Notes |
+|---|---|
+| `extension/src/vault/components/review-editor.js` | `renderReviewEditor(data, {onSave,onCancel})` — the correction form (platform, contact, per-message sender/text/timestamp, visible time, date, optional reason). `renderVersionHistory(versions, {selected,onSelect})` — the v1/v2 list with origin (AI-derived / Human-corrected), signed time, "✓ signed". `createReviewController({reviseApi,onRevised})` — open → edit → `reviseApi.revise(id, data, {note})`; on success `onRevised` + close, on failure the versions are untouched and "The correction was not saved: …" is shown. `chromeReviseApi` = one `REVISE_METADATA` round-trip. Role C signs nothing. |
+| `tests/fixtures/record.versioned.sample.json` | `StoredEvidenceRecord` + `versions: [v1(ai), v2(human)]` in the Task 0 shape; `screenshot_hash` identical across versions. |
+| `tests/vault/review-editor.test.js` | 15 jsdom tests — editor prefill/save/cancel/blank, version history rows + selection + click, controller success/failure/cancel, and the version-aware detail panel (defaults to latest, switch to v1 shows original text, screenshot hash equal across versions, `[Edit metadata]` only on the latest, single-version record has no history section). |
+
+### Changed
+
+- `shared/messages.js` — `MSG.REVISE_METADATA` (`{ evidence_id, data, note } → { ok, record }`).
+- `derived-metadata-block.js` — optional `{ onEdit }` → an `[Edit metadata]` control.
+- `detail-panel.js` — version-aware: `normalizeVersions(res)` (a pre-`versions[]` record becomes one implicit version), a "Versions" section when there is more than one, a version switcher that re-renders the body **without** a re-fetch or a new object URL, `[Edit metadata]` wired only for the latest version, new opt `onEditMetadata`.
+- `record-card.js` — now also owns `formatDeviceTime` (moved from `detail-panel.js`, which re-exports it) so `review-editor.js` / `verify-panel.js` share it without importing from `detail-panel.js` (avoids an import cycle).
+- `vault.js` — the bootstrap mounts a review controller below the verify panel; `[Edit metadata]` opens it, and `onRevised` re-shows the record and marks its timeline pill unverified.
+- `vault.css` — `.nk-versions*`, `.nk-review*`, `.nk-derived__edit` classes.
+
+### Decisions / known limits
+
+- **Pre-lock review gate (Task 1) skipped.** The pipeline is strictly one click, no dialog
+  (Principle 5; `docs/role-a-status.md` DoD #3). Review happens only from the detail view.
+- **Editor edits existing message rows in place** — no add/remove-message UI (out of Task 2's
+  scope, which lists editing the current fields).
+- **Verify still verifies the latest version.** Per-version verification needs
+  `verifyEvidence(id, { version })` — a Role B ask in prompt 12.
+- Both stale contract notes from steps 03 and 05 have been trimmed from the component comments now
+  that Role B step 11 has landed.
+
+---
+
 ## Not yet started
 
-Steps 06–08: human review/edit, export, integration tests + copy audit.
+Steps 07–08: export, integration tests + copy audit.
