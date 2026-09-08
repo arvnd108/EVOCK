@@ -60,13 +60,20 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
       signature_ok: false,
       status: "ERROR",
       details: [VERIFY_DETAILS.RECORD_NOT_FOUND],
-      verified_at
+      verified_at,
+      current_integrity: { screenshot_hash: null, metadata_hash: null, manifest_hash: null }
     };
   }
 
   const details = [];
   let errored = false;
   const manifest = record.manifest;
+
+  // Hashes recomputed this run, paired against manifest.integrity.* for Role C's
+  // MODIFIED panel (spec §18). Stay null where a check could not be evaluated.
+  let screenshot_current = null;
+  let metadata_current = null;
+  let manifest_current = null;
 
   // A manifest with no integrity or signature block is structurally broken, not
   // "modified" — there is nothing to compare against.
@@ -78,7 +85,8 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
       signature_ok: false,
       status: "ERROR",
       details: [VERIFY_DETAILS.MANIFEST_MISMATCH],
-      verified_at
+      verified_at,
+      current_integrity: { screenshot_hash: null, metadata_hash: null, manifest_hash: null }
     };
     if (persist) await vaultRepo.updateVerification(evidence_id, result);
     return result;
@@ -93,6 +101,7 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
       await getVaultKey()
     );
     const recomputed = await sha256Bytes(plaintext);
+    screenshot_current = recomputed;
     screenshot_hash_ok = recomputed === manifest.integrity.screenshot_hash;
     if (!screenshot_hash_ok) details.push(VERIFY_DETAILS.SCREENSHOT_MISMATCH);
   } catch {
@@ -105,6 +114,7 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
   let metadata_hash_ok = false;
   try {
     const recomputed = await sha256Canonical(manifest.ai_derived_metadata);
+    metadata_current = recomputed;
     metadata_hash_ok = recomputed === manifest.integrity.metadata_hash;
     if (!metadata_hash_ok) details.push(VERIFY_DETAILS.METADATA_MISMATCH);
   } catch {
@@ -118,6 +128,7 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
   let manifest_hash_ok = false;
   try {
     const recomputed = await sha256Canonical(reduceManifestForHashing(manifest));
+    manifest_current = recomputed;
     manifest_hash_ok = recomputed === manifest.integrity.manifest_hash;
     if (!manifest_hash_ok) details.push(VERIFY_DETAILS.MANIFEST_MISMATCH);
   } catch {
@@ -160,7 +171,12 @@ export async function verifyEvidence(evidence_id, { persist = true } = {}) {
     signature_ok,
     status,
     details: status === "VERIFIED" ? [] : dedupe(details),
-    verified_at
+    verified_at,
+    current_integrity: {
+      screenshot_hash: screenshot_current,
+      metadata_hash: metadata_current,
+      manifest_hash: manifest_current
+    }
   };
 
   if (persist) await vaultRepo.updateVerification(evidence_id, result);

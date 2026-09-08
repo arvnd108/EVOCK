@@ -398,3 +398,82 @@ describe("verifyEvidence — compound failure", () => {
     expect(details.length).toBe(new Set(details).size);
   });
 });
+
+describe("current_integrity — recomputed hashes for Role C's MODIFIED panel", () => {
+  it("matches manifest.integrity.* on a clean record", async () => {
+    const id = await seedRecord();
+    const manifest = (await readRaw(id)).manifest;
+
+    const result = await verifyEvidence(id, { persist: false });
+
+    expect(result.current_integrity).toEqual({
+      screenshot_hash: manifest.integrity.screenshot_hash,
+      metadata_hash: manifest.integrity.metadata_hash,
+      manifest_hash: manifest.integrity.manifest_hash
+    });
+  });
+
+  it("differs from the recorded hash after a metadata tamper, and is not null", async () => {
+    const id = await seedRecord();
+    const recorded = (await readRaw(id)).manifest.integrity;
+    await tamperManifest(id, (m) => {
+      m.ai_derived_metadata.data.messages[0].text += "!";
+    });
+
+    const result = await verifyEvidence(id, { persist: false });
+
+    expect(result.current_integrity.metadata_hash).not.toBeNull();
+    expect(result.current_integrity.metadata_hash).not.toBe(recorded.metadata_hash);
+    expect(result.current_integrity.manifest_hash).not.toBe(recorded.manifest_hash);
+    // the screenshot was untouched, so its recomputed hash still matches
+    expect(result.current_integrity.screenshot_hash).toBe(recorded.screenshot_hash);
+  });
+
+  it("leaves screenshot_hash null on a decryption failure but keeps the other two", async () => {
+    const id = await seedRecord();
+    const record = await readRaw(id);
+    record.screenshot_ciphertext = crypto.getRandomValues(new Uint8Array(64)).buffer;
+    await writeRaw(record);
+
+    const result = await verifyEvidence(id, { persist: false });
+
+    expect(result.status).toBe("ERROR");
+    expect(result.current_integrity.screenshot_hash).toBeNull();
+    expect(result.current_integrity.metadata_hash).not.toBeNull();
+    expect(result.current_integrity.manifest_hash).not.toBeNull();
+  });
+
+  it("is present with all-null values on RECORD_NOT_FOUND", async () => {
+    const result = await verifyEvidence("NK-9999");
+
+    expect(result.current_integrity).toEqual({
+      screenshot_hash: null,
+      metadata_hash: null,
+      manifest_hash: null
+    });
+  });
+
+  it("is present with all-null values on a structurally broken manifest", async () => {
+    const id = await seedRecord();
+    const record = await readRaw(id);
+    delete record.manifest.integrity;
+    await writeRaw(record);
+
+    const result = await verifyEvidence(id, { persist: false });
+
+    expect(result.status).toBe("ERROR");
+    expect(result.current_integrity).toEqual({
+      screenshot_hash: null,
+      metadata_hash: null,
+      manifest_hash: null
+    });
+  });
+
+  it("survives the persist round trip on last_verification", async () => {
+    const id = await seedRecord();
+    await verifyEvidence(id); // persist: true
+
+    const stored = (await readRaw(id)).last_verification;
+    expect(stored.current_integrity.metadata_hash).toBeTruthy();
+  });
+});

@@ -186,6 +186,34 @@
  * @property {"VERIFIED"|"MODIFIED"|"ERROR"} status
  * @property {string[]} details              // e.g. ["metadata hash mismatch"]
  * @property {string} verified_at            // ISO-8601 with offset
+ * @property {{ screenshot_hash: string|null, metadata_hash: string|null, manifest_hash: string|null }} [current_integrity]
+ *           // hashes recomputed THIS run, to pair against manifest.integrity.*
+ *           // (spec §18). null where a check could not be evaluated. Added after
+ *           // §5.5 was frozen: a 1.0 -> 1.1-style additive field. Existing
+ *           // consumers ignore it; last_verification is stored but never hashed,
+ *           // so no record on disk needs rewriting.
+ */
+
+// ---------------------------------------------------------------------------
+// VaultListItem — one row of storage/vault-repo.js list() (Role B / Role C)
+// ---------------------------------------------------------------------------
+
+/**
+ * The metadata-only projection `list()` returns per record. Never carries
+ * `screenshot_ciphertext` or `iv`.
+ *
+ * `contact_label` was added after the projection was first published, for Role
+ * C's timeline row — additive, no migration.
+ *
+ * @typedef {Object} VaultListItem
+ * @property {string} evidence_id
+ * @property {string} created_at              // ISO-8601, timeline sort key
+ * @property {string} platform_label          // may be "Unknown"
+ * @property {string|null} contact_label      // AI-derived contact name; null if none / extraction failed
+ * @property {ManifestSource|null} source
+ * @property {ManifestCapture|null} capture
+ * @property {"ok"|"failed"|null} extraction_status
+ * @property {VerificationResult|null} last_verification
  */
 
 export {};
