@@ -5,8 +5,46 @@
 **Step 02 — Static demo chat page (C7):** complete.
 **Step 03 — Vault shell and chronological timeline (C3, part 1):** complete.
 **Step 04 — Evidence detail view (C3, part 2):** complete.
-**Tests:** `npm test` → 371 passing (+13 detail). `python3 tests/run-tests.py` → 20/20.
+**Step 05 — Verification UI (C5):** complete.
+**Tests:** `npm test` → 385 passing (+14 verify). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+---
+
+## Step 05 — Verification UI (C5)
+
+### Added
+
+| File | Notes |
+|---|---|
+| `extension/src/vault/components/verify-panel.js` | `renderVerifyPanel(result, { manifest })` — VERIFIED / MODIFIED / ERROR as three visually distinct states (green / red / neutral amber). MODIFIED shows the **recorded-vs-current hash pair** side by side (monospace, aligned — spec §18), a one-liner naming the changed field (built from the `*_ok` booleans, referencing the record's creation date), the per-field ✓/❌ row, and the `details[]` strings **verbatim**. `HONEST_FOOTER` on every state. `createVerifyPanel({ verifyApi, onResult })` → `{ element, run(id,{manifest}), close() }`; `chromeVerifyApi` = one `VERIFY_EVIDENCE` round-trip. No `evidence/` or `crypto/` import; a test asserts `crypto.subtle.digest` is never called. |
+| `tests/vault/verify-panel.test.js` | 14 jsdom tests: the three states, the side-by-side hash pair sourced from data (recorded ← manifest, current ← result), per-field row matching the booleans, verbatim details, footer on all states, deterministic/pure render, and the `createVerifyPanel` run / transport-error / close paths. |
+
+### Changed
+
+- `vault.css` — `.nk-verify*` classes (`--verified` green / `--modified` red / `--error` amber, the `.nk-verify__hashes` two-line block, checks row, footer).
+- `detail-panel.js` — `[Verify]` now calls `onVerify(id, manifest)` (manifest passed so the panel can source recorded hashes); step-04 tests unaffected (they don't invoke `onVerify`).
+- `vault.js` — `initVault` now also returns `applyVerification(id, result)` (folds a fresh result into the in-memory list and repaints the timeline pill without a re-fetch). The auto-bootstrap wires a verify panel below the detail panel: `[Verify]` → `verify.run(id, { manifest })` → `onResult` → `applyVerification`.
+
+### Contract ask for Role B — recomputed hashes on `VerificationResult`
+
+Spec §18 / Role C.md §C5 need the **current** (recomputed) hash beside the recorded one.
+`VerificationResult` (§5.5) does not carry it, and Role C **must not** recompute hashes in the
+UI (§C5, "do not derive it locally"). Proposed minimal addition, mirroring `manifest.integrity`:
+
+```jsonc
+"current_integrity": {
+  "screenshot_hash": "<hex>",   // what the verifier recomputed this run
+  "metadata_hash":   "<hex>",
+  "manifest_hash":   "<hex>"
+}
+```
+
+The verifier already computes each `recomputed` value next to `manifest.integrity.X`
+(`verify/verifier.js` steps 2–4), so this is a pass-through, not new work.
+`verification.modified.sample.json` carries `current_integrity` now so the panel is testable and
+demoable; when it is **absent** the panel renders the recorded hash and shows
+"not reported by the verifier" for the current slot — never a locally-derived value.
 
 ---
 
@@ -246,5 +284,4 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ## Not yet started
 
-Steps 05–08: verification UI, human review/edit, export, integration tests +
-copy audit.
+Steps 06–08: human review/edit, export, integration tests + copy audit.

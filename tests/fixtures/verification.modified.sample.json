@@ -4,6 +4,15 @@
   "manifest_hash_ok": false,
   "signature_ok": false,
   "status": "MODIFIED",
-  "details": ["metadata hash mismatch", "manifest hash mismatch", "signature invalid"],
-  "verified_at": "2026-09-08T10:14:37+05:30"
+  "details": [
+    "metadata hash mismatch",
+    "manifest hash mismatch",
+    "signature invalid"
+  ],
+  "verified_at": "2026-09-08T10:14:37+05:30",
+  "current_integrity": {
+    "screenshot_hash": "83a91f2c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8",
+    "metadata_hash": "e767339c2ee312dfbb98cb75d15df22084d4345660b4457de05d458c7f6731ad",
+    "manifest_hash": "4e053292956f4a7cec79bc566b0e69f1ed58607f20531426cc092f590ee52b36"
+  }
 }

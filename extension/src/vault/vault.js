@@ -16,6 +16,7 @@ import { createDetailPanel } from "./components/detail-panel.js";
 import { applyFilters, defaultFilterState, renderFilters } from "./components/filters.js";
 import { renderEmptyState } from "./components/empty-state.js";
 import { renderTimeline } from "./components/timeline.js";
+import { createVerifyPanel } from "./components/verify-panel.js";
 
 /**
  * The production data seam: one round-trip to the service worker.
@@ -117,7 +118,22 @@ export async function initVault(
   }
 
   paint();
-  return { refresh: paint };
+
+  /**
+   * Fold a fresh VerificationResult into the in-memory list and repaint, so the
+   * timeline pill reflects a verify run without a re-fetch.
+   * @param {string} evidence_id
+   * @param {object} result
+   */
+  function applyVerification(evidence_id, result) {
+    const item = all.find((x) => x.evidence_id === evidence_id);
+    if (item) {
+      item.last_verification = result;
+      paint();
+    }
+  }
+
+  return { refresh: paint, applyVerification };
 }
 
 function renderNoMatches() {
@@ -141,12 +157,35 @@ if (typeof document !== "undefined") {
   const auto = document.querySelector("[data-vault-autoinit]");
   if (auto) {
     const detailMount = document.getElementById("vault-detail");
-    const panel = detailMount ? createDetailPanel() : null;
+
+    /** @type {{ refresh: () => void, applyVerification: (id: string, r: object) => void } | null} */
+    let controller = null;
+
+    const verify = detailMount
+      ? createVerifyPanel({
+          onResult: (id, result) => controller?.applyVerification(id, result)
+        })
+      : null;
+
+    const panel = detailMount
+      ? createDetailPanel({
+          onVerify: verify
+            ? (id, manifest) => {
+                verify.run(id, { manifest });
+                verify.element.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            : undefined,
+          onClose: () => verify?.close()
+        })
+      : null;
+
     if (panel) detailMount.append(panel.element);
+    if (verify) detailMount.append(verify.element);
 
     initVault(auto, {
       onSelect: panel
         ? (id) => {
+            verify?.close();
             panel.show(id).then(
               () => panel.element.scrollIntoView({ behavior: "smooth", block: "start" }),
               (err) => {
@@ -160,12 +199,17 @@ if (typeof document !== "undefined") {
             );
           }
         : undefined
-    }).catch((err) => {
-      auto.replaceChildren();
-      const box = document.createElement("div");
-      box.className = "nk-vault__error";
-      box.textContent = `Could not load the vault: ${err?.message || err}`;
-      auto.append(box);
-    });
+    }).then(
+      (c) => {
+        controller = c;
+      },
+      (err) => {
+        auto.replaceChildren();
+        const box = document.createElement("div");
+        box.className = "nk-vault__error";
+        box.textContent = `Could not load the vault: ${err?.message || err}`;
+        auto.append(box);
+      }
+    );
   }
 }

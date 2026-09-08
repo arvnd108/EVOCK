@@ -132,7 +132,8 @@ function buildBody(evidenceId, res, imageUrl, { onVerify, onExport, close }) {
   const actions = document.createElement("div");
   actions.className = "nk-detail__actions";
   actions.append(
-    actionButton("Verify", () => onVerify?.(evidenceId)),
+    // manifest is handed on so the verify panel can source the recorded hashes.
+    actionButton("Verify", () => onVerify?.(evidenceId, manifest)),
     actionButton("Export ▾", () => onExport?.(evidenceId)),
     actionButton("Close", () => close())
   );

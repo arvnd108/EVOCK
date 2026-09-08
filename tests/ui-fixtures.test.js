@@ -34,7 +34,11 @@ describe("verification fixtures — VerificationResult (§5.5)", () => {
   ]) {
     it(`${name} matches the typedef and uses only frozen detail strings`, () => {
       const v = loadUiFixture(name);
-      expect(Object.keys(v).sort()).toEqual([...VERIFICATION_RESULT_KEYS].sort());
+      // Every §5.5 key must be present. `current_integrity` is an OPTIONAL extra
+      // (the recomputed hashes the verify panel pairs against the recorded ones —
+      // proposed Role B addition, docs/role-c-status.md).
+      const keys = Object.keys(v).filter((k) => k !== "current_integrity");
+      expect(keys.sort()).toEqual([...VERIFICATION_RESULT_KEYS].sort());
       expect(["VERIFIED", "MODIFIED", "ERROR"]).toContain(v.status);
       for (const k of [
         "screenshot_hash_ok",

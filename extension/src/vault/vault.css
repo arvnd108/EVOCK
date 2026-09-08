@@ -499,3 +499,146 @@
   color: var(--nk-text);
   outline: none;
 }
+
+/* --- Verify panel (step 05 / C5, spec §18) ---------------------------- */
+
+.nk-verify-host {
+  margin-top: var(--nk-space-4);
+}
+
+.nk-verify {
+  padding: var(--nk-space-4);
+  border: 1px solid var(--nk-border);
+  border-left-width: 4px;
+  border-radius: var(--nk-radius);
+  background: var(--nk-surface);
+}
+
+.nk-verify--verified {
+  border-left-color: var(--nk-ok);
+  background: var(--nk-ok-bg);
+}
+
+.nk-verify--modified {
+  border-left-color: var(--nk-bad);
+  background: var(--nk-bad-bg);
+}
+
+.nk-verify--error {
+  border-left-color: var(--nk-warn);
+  background: var(--nk-warn-bg);
+}
+
+.nk-verify__banner {
+  display: flex;
+  align-items: center;
+  gap: var(--nk-space-2);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.nk-verify--verified .nk-verify__banner {
+  color: var(--nk-ok);
+}
+
+.nk-verify--modified .nk-verify__banner {
+  color: var(--nk-bad);
+}
+
+.nk-verify--error .nk-verify__banner {
+  color: var(--nk-warn);
+}
+
+.nk-verify__banner-symbol {
+  font-size: 18px;
+}
+
+/* The recorded-vs-current contrast: the whole argument in two lines. */
+.nk-verify__hashes {
+  margin: var(--nk-space-3) 0;
+  padding: var(--nk-space-3);
+  background: var(--nk-surface);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+}
+
+.nk-verify__hash {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: var(--nk-space-3);
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.nk-verify__hash-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--nk-text-muted);
+}
+
+.nk-verify__hash-val {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  color: var(--nk-text);
+}
+
+.nk-verify__hash-val--missing {
+  font-family: var(--nk-font);
+  font-style: italic;
+  color: var(--nk-text-muted);
+}
+
+.nk-verify__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-2) var(--nk-space-4);
+  margin: var(--nk-space-3) 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nk-verify__check--ok {
+  color: var(--nk-ok);
+}
+
+.nk-verify__check--bad {
+  color: var(--nk-bad);
+}
+
+.nk-verify__explain {
+  margin: var(--nk-space-2) 0;
+  font-size: 13px;
+}
+
+.nk-verify__when {
+  margin: var(--nk-space-1) 0 0;
+  font-size: 12px;
+  color: var(--nk-text-muted);
+}
+
+.nk-verify__details {
+  margin: var(--nk-space-2) 0;
+  padding-left: var(--nk-space-5);
+  font-size: 12px;
+  color: var(--nk-text-muted);
+}
+
+.nk-verify__footer {
+  margin: var(--nk-space-3) 0 0;
+  padding-top: var(--nk-space-2);
+  border-top: 1px solid var(--nk-border);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--nk-text-muted);
+}
+
+.nk-verify__busy,
+.nk-verify__run-error {
+  padding: var(--nk-space-3);
+  font-size: 13px;
+  color: var(--nk-text-muted);
+}
