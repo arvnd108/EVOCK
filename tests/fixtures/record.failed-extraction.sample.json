@@ -1,0 +1,67 @@
+{
+  "_note": "StoredEvidenceRecord (Building Plan §5.4) — AI extraction FAILED. In JSON, screenshot_ciphertext and iv are base64 strings; a real record in IndexedDB holds ArrayBuffer for both. The screenshot, all three integrity hashes, the signature and the encryption block are intact: Role C renders this as a missing DETAIL, never as a failed capture (Role C.md §5).",
+  "evidence_id": "NK-0002",
+  "manifest": {
+    "schema_version": "1.0",
+    "evidence_id": "NK-0002",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/direct/t/17800000000000000/",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-09-03T14:07:11+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "visual_artifact": {
+      "type": "screenshot",
+      "storage": "encrypted",
+      "encryption": {
+        "algorithm": "AES-GCM",
+        "key_length": 256,
+        "iv": "yv66vv7erb7u3d7e"
+      }
+    },
+    "ai_derived_metadata": {
+      "provider": "vision",
+      "model": null,
+      "status": "failed",
+      "extracted_at": "2026-09-03T14:07:14+05:30",
+      "data": null
+    },
+    "integrity": {
+      "hash_algorithm": "SHA-256",
+      "screenshot_hash": "576033f0c53805b45f64aaca4216151934c66809bb9f6786698ccce527175941",
+      "metadata_hash": "0b83ec7f57ddce7aa8d39e5e9a2af350d464b3207f03915af11cb1818f78a13d",
+      "manifest_hash": "615311c61326cf10d2ad9bbb5b976a09ec59d728215876d569e6b9e20f978a41"
+    },
+    "signature": {
+      "algorithm": "ECDSA-P256-SHA256",
+      "public_key_jwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "PLACEHOLDER_X_COORDINATE_BASE64URL_43_CHARS_AAAAA",
+        "y": "PLACEHOLDER_Y_COORDINATE_BASE64URL_43_CHARS_BBBBB",
+        "ext": true,
+        "key_ops": [
+          "verify"
+        ]
+      },
+      "signature": "UExBQ0VIT0xERVJfU0lHX0ZBSUxFRF9FWFRSQUNUSU9OX05LMDAwMl9CQVNFNjRfUExBQ0VIT0xERVI=",
+      "signed_at": "2026-09-03T14:07:16+05:30"
+    },
+    "timestamp": {
+      "device_capture_time": "2026-09-03T14:07:11+05:30",
+      "trusted_timestamp_status": "not_configured",
+      "trusted_timestamp_token": null
+    }
+  },
+  "screenshot_ciphertext": "UExBQ0VIT0xERVJfQUVTX0dDTV9DSVBIRVJURVhUX0ZBSUxFRF9FWFRSQUNUSU9OX05LMDAwMg==",
+  "iv": "yv66vv7erb7u3d7e",
+  "created_at": "2026-09-03T14:07:11+05:30",
+  "platform_label": "Unknown",
+  "last_verification": null
+}

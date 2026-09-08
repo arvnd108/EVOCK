@@ -11,6 +11,9 @@ bridge/.env
 node_modules/
 package-lock.json
 
+# Build output (reserved — no bundler yet; see docs/role-c-status.md)
+dist/
+
 # Operating System & IDE files
 .DS_Store
 Thumbs.db

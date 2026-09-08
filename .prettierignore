@@ -1,0 +1,10 @@
+node_modules/
+dist/
+package-lock.json
+*.log
+__pycache__/
+tests/fixtures/
+
+# Prose is out of scope: Prettier here enforces JS/CSS/HTML consistency, not
+# Markdown reflow (which mangles hand-aligned tables and is owned per-author).
+*.md

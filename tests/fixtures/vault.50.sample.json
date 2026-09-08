@@ -1,0 +1,1352 @@
+[
+  {
+    "evidence_id": "NK-0050",
+    "created_at": "2026-08-10T17:43:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/50",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-10T17:43:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0049",
+    "created_at": "2026-08-10T15:36:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/49",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-10T15:36:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0048",
+    "created_at": "2026-08-10T13:29:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/48",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-10T13:29:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0047",
+    "created_at": "2026-08-10T11:22:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/47",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-10T11:22:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-10T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0046",
+    "created_at": "2026-08-10T09:15:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/46",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-10T09:15:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0045",
+    "created_at": "2026-08-09T17:08:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/45",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-09T17:08:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0044",
+    "created_at": "2026-08-09T15:01:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/44",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-09T15:01:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0043",
+    "created_at": "2026-08-09T13:54:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/43",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-09T13:54:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0042",
+    "created_at": "2026-08-09T11:47:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/42",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-09T11:47:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-09T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0041",
+    "created_at": "2026-08-09T09:40:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/41",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-09T09:40:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0040",
+    "created_at": "2026-08-08T17:33:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/40",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-08T17:33:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0039",
+    "created_at": "2026-08-08T15:26:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/39",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-08T15:26:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0038",
+    "created_at": "2026-08-08T13:19:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/38",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-08T13:19:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0037",
+    "created_at": "2026-08-08T11:12:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/37",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-08T11:12:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-08T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0036",
+    "created_at": "2026-08-08T09:05:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/36",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-08T09:05:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0035",
+    "created_at": "2026-08-07T17:58:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/35",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-07T17:58:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0034",
+    "created_at": "2026-08-07T15:51:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/34",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-07T15:51:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0033",
+    "created_at": "2026-08-07T13:44:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/33",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-07T13:44:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0032",
+    "created_at": "2026-08-07T11:37:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/32",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-07T11:37:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-07T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0031",
+    "created_at": "2026-08-07T09:30:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/31",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-07T09:30:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0030",
+    "created_at": "2026-08-06T17:23:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/30",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-06T17:23:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0029",
+    "created_at": "2026-08-06T15:16:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/29",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-06T15:16:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0028",
+    "created_at": "2026-08-06T13:09:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/28",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-06T13:09:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0027",
+    "created_at": "2026-08-06T11:02:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/27",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-06T11:02:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-06T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0026",
+    "created_at": "2026-08-06T09:55:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/26",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-06T09:55:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0025",
+    "created_at": "2026-08-05T17:48:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/25",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-05T17:48:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0024",
+    "created_at": "2026-08-05T15:41:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/24",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-05T15:41:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0023",
+    "created_at": "2026-08-05T13:34:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/23",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-05T13:34:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0022",
+    "created_at": "2026-08-05T11:27:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/22",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-05T11:27:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-05T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0021",
+    "created_at": "2026-08-05T09:20:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/21",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-05T09:20:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0020",
+    "created_at": "2026-08-04T17:13:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/20",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-04T17:13:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0019",
+    "created_at": "2026-08-04T15:06:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/19",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-04T15:06:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0018",
+    "created_at": "2026-08-04T13:59:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/18",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-04T13:59:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0017",
+    "created_at": "2026-08-04T11:52:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/17",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-04T11:52:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-04T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0016",
+    "created_at": "2026-08-04T09:45:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/16",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-04T09:45:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0015",
+    "created_at": "2026-08-03T17:38:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/15",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-03T17:38:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0014",
+    "created_at": "2026-08-03T15:31:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/14",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-03T15:31:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0013",
+    "created_at": "2026-08-03T13:24:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/13",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-03T13:24:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0012",
+    "created_at": "2026-08-03T11:17:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/12",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-03T11:17:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-03T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0011",
+    "created_at": "2026-08-03T09:10:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/11",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-03T09:10:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0010",
+    "created_at": "2026-08-02T17:03:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/10",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-02T17:03:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0009",
+    "created_at": "2026-08-02T15:56:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/9",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-02T15:56:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0008",
+    "created_at": "2026-08-02T13:49:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/8",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-02T13:49:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0007",
+    "created_at": "2026-08-02T11:42:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/7",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-02T11:42:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "failed",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-02T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0006",
+    "created_at": "2026-08-02T09:35:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/6",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-02T09:35:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  },
+  {
+    "evidence_id": "NK-0005",
+    "created_at": "2026-08-01T17:28:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/5",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-01T17:28:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-08T08:45:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0004",
+    "created_at": "2026-08-01T15:21:00+05:30",
+    "platform_label": "Unknown",
+    "contact_label": "Unknown sender",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/4",
+      "domain": "forum.example",
+      "tab_title": "Conversation"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-01T15:21:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-09-07T09:15:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0003",
+    "created_at": "2026-08-01T13:14:00+05:30",
+    "platform_label": "Website",
+    "contact_label": null,
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://example.com/thread/3",
+      "domain": "example.com",
+      "tab_title": "Website"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-01T13:14:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": false,
+      "manifest_hash_ok": false,
+      "signature_ok": true,
+      "status": "MODIFIED",
+      "details": [
+        "metadata hash mismatch",
+        "manifest hash mismatch"
+      ],
+      "verified_at": "2026-09-06T18:30:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0002",
+    "created_at": "2026-08-01T11:07:00+05:30",
+    "platform_label": "Instagram",
+    "contact_label": "@handle_example",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://www.instagram.com/thread/2",
+      "domain": "www.instagram.com",
+      "tab_title": "Instagram"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-01T11:07:00+05:30",
+      "screenshot_width": 1440,
+      "screenshot_height": 900,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": {
+      "screenshot_hash_ok": true,
+      "metadata_hash_ok": true,
+      "manifest_hash_ok": true,
+      "signature_ok": true,
+      "status": "VERIFIED",
+      "details": [],
+      "verified_at": "2026-08-01T20:00:00+05:30"
+    }
+  },
+  {
+    "evidence_id": "NK-0001",
+    "created_at": "2026-08-01T09:00:00+05:30",
+    "platform_label": "WhatsApp",
+    "contact_label": "Mr. ABC B",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://web.whatsapp.com/thread/1",
+      "domain": "web.whatsapp.com",
+      "tab_title": "WhatsApp"
+    },
+    "capture": {
+      "device_captured_at": "2026-08-01T09:00:00+05:30",
+      "screenshot_width": 390,
+      "screenshot_height": 844,
+      "mime_type": "image/png"
+    },
+    "extraction_status": "ok",
+    "last_verification": null
+  }
+]

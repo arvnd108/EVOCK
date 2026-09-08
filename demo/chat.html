@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Messages — sample conversation</title>
+    <link rel="stylesheet" href="chat.css" />
+  </head>
+  <body>
+    <!--
+      EVOCK demo capture target (Role C, step 02 / C7).
+
+      A deterministic, offline, obviously-fictional messaging screen. It exists so
+      that development, tests and the recorded demo capture the SAME pixels every
+      run, and so the §18 tamper demo has known message text to alter and restore
+      in the stored record.
+
+      No JavaScript, no network requests, no web fonts. Do not add branding or
+      trade dress of any real messaging product. The message strings
+      "Don't try to hide." and "I know where you live." are load-bearing for the
+      tamper demo — keep them verbatim.
+    -->
+    <div class="disclaimer" role="note">FICTIONAL SAMPLE CONVERSATION — FOR EVOCK DEMO</div>
+
+    <main class="app" aria-label="Sample conversation">
+      <header class="conversation-header">
+        <div class="avatar" aria-hidden="true">AB</div>
+        <div class="who">
+          <div class="contact-name">Mr. ABC B</div>
+          <div class="contact-status">last seen recently</div>
+        </div>
+      </header>
+
+      <section class="messages" aria-label="Messages">
+        <div class="day-separator"><span>1 September 2026</span></div>
+
+        <div class="message incoming">
+          <p class="bubble">Don't try to hide.</p>
+          <span class="timestamp">11:28 PM</span>
+        </div>
+
+        <div class="message incoming">
+          <p class="bubble">I know where you live.</p>
+          <span class="timestamp">11:28 PM</span>
+        </div>
+      </section>
+
+      <footer class="composer">
+        <input
+          class="composer-input"
+          type="text"
+          placeholder="Message"
+          value=""
+          disabled
+          aria-disabled="true"
+        />
+        <button class="composer-send" type="button" disabled aria-disabled="true">Send</button>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,209 @@
+/*
+ * EVOCK demo capture target styles (Role C, step 02 / C7).
+ *
+ * Deterministic by construction: fixed pixel dimensions, no animations, no
+ * transitions, no @font-face, system fonts only. The layout boxes are the same
+ * size on every machine; only glyph anti-aliasing can differ between operating
+ * systems, which does not change dimensions or structure.
+ *
+ * Neutral palette — deliberately NOT the colours of any real messaging product.
+ */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --page-bg: #eceef1;
+  --app-bg: #ffffff;
+  --header-bg: #3a4a5a;
+  --header-fg: #ffffff;
+  --thread-bg: #f4f5f7;
+  --bubble-in-bg: #ffffff;
+  --bubble-in-fg: #1c1f23;
+  --bubble-border: #d9dde2;
+  --meta-fg: #7a828c;
+  --separator-bg: #dfe3e8;
+  --separator-fg: #55606c;
+  --composer-bg: #ffffff;
+  --composer-border: #d9dde2;
+  --disclaimer-bg: #fff4d6;
+  --disclaimer-fg: #6b5300;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--page-bg);
+  font-family: var(--font);
+  color: var(--bubble-in-fg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+}
+
+.disclaimer {
+  width: 420px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--disclaimer-bg);
+  color: var(--disclaimer-fg);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.app {
+  width: 420px;
+  height: 560px;
+  background: var(--app-bg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  padding: 0 16px;
+  background: var(--header-bg);
+  color: var(--header-fg);
+  flex: 0 0 auto;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #6b7b8c;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.who {
+  line-height: 1.3;
+}
+
+.contact-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.contact-status {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* Message thread */
+.messages {
+  flex: 1 1 auto;
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--thread-bg);
+}
+
+.day-separator {
+  text-align: center;
+  margin: 4px 0 16px;
+}
+
+.day-separator span {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--separator-bg);
+  color: var(--separator-fg);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.message.incoming {
+  align-items: flex-start;
+}
+
+.bubble {
+  margin: 0;
+  max-width: 280px;
+  padding: 8px 12px;
+  background: var(--bubble-in-bg);
+  color: var(--bubble-in-fg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 12px;
+  border-top-left-radius: 3px;
+  font-size: 14px;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+
+.timestamp {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--meta-fg);
+}
+
+/* Composer (inert) */
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 12px;
+  background: var(--composer-bg);
+  border-top: 1px solid var(--composer-border);
+  flex: 0 0 auto;
+}
+
+.composer-input {
+  flex: 1 1 auto;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--composer-border);
+  border-radius: 18px;
+  font-family: var(--font);
+  font-size: 14px;
+  background: #f4f5f7;
+  color: var(--meta-fg);
+}
+
+.composer-send {
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 18px;
+  background: #9aa4af;
+  color: #ffffff;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.composer-input:disabled,
+.composer-send:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}

@@ -7,13 +7,11 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { verifyEvidence, VERIFY_DETAILS } from "../../extension/src/verify/verifier.js";
+import { VERIFY_DETAILS, verifyEvidence } from "../../extension/src/verify/verifier.js";
 import { lockEvidence } from "../../extension/src/evidence/lock-evidence.js";
 import { reduceManifestForHashing } from "../../extension/src/evidence/manifest-builder.js";
 import { encryptBlob, getVaultKey } from "../../extension/src/crypto/encrypt.js";
 import {
-  bytesToBase64,
-  dataUrlToBytes,
   sha256Bytes,
   sha256Canonical
 } from "../../extension/src/crypto/hash.js";

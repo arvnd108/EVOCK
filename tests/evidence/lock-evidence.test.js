@@ -5,7 +5,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { lockEvidence, nowIso } from "../../extension/src/evidence/lock-evidence.js";
 import { reduceManifestForHashing } from "../../extension/src/evidence/manifest-builder.js";
-import { sha256Bytes, sha256Canonical, dataUrlToBytes } from "../../extension/src/crypto/hash.js";
+import { dataUrlToBytes, sha256Bytes, sha256Canonical } from "../../extension/src/crypto/hash.js";
 import { verifyManifestSignature } from "../../extension/src/crypto/sign.js";
 import * as vaultRepo from "../../extension/src/storage/vault-repo.js";
 import { closeDb, DB_NAME } from "../../extension/src/storage/db.js";

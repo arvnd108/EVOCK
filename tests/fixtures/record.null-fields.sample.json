@@ -1,0 +1,73 @@
+{
+  "_note": "StoredEvidenceRecord (Building Plan §5.4) — extraction SUCCEEDED (status ok) but the vision model returned null for platform, contact and every visible field, with no messages. In JSON, screenshot_ciphertext and iv are base64 strings; a real record holds ArrayBuffer. Proves the timeline and detail view survive null platform/contact and an empty message list without a blank region.",
+  "evidence_id": "NK-0003",
+  "manifest": {
+    "schema_version": "1.0",
+    "evidence_id": "NK-0003",
+    "source": {
+      "capture_method": "browser_extension.captureVisibleTab",
+      "url": "https://forum.example/thread/9921",
+      "domain": "forum.example",
+      "tab_title": "Thread"
+    },
+    "capture": {
+      "device_captured_at": "2026-09-05T20:41:03+05:30",
+      "screenshot_width": 1280,
+      "screenshot_height": 720,
+      "mime_type": "image/png"
+    },
+    "visual_artifact": {
+      "type": "screenshot",
+      "storage": "encrypted",
+      "encryption": {
+        "algorithm": "AES-GCM",
+        "key_length": 256,
+        "iv": "yv66vv7erb7u3d7e"
+      }
+    },
+    "ai_derived_metadata": {
+      "provider": "vision",
+      "model": "openrouter/anthropic/claude-3.5-sonnet",
+      "status": "ok",
+      "extracted_at": "2026-09-05T20:41:09+05:30",
+      "data": {
+        "platform": null,
+        "contact_name": null,
+        "messages": [],
+        "visible_time": null,
+        "date": null
+      }
+    },
+    "integrity": {
+      "hash_algorithm": "SHA-256",
+      "screenshot_hash": "1828c24b38ed200d780f873b5d089ceced4603c1606d5b64cc15fcbaa85d24f4",
+      "metadata_hash": "09ffca678fb18c3b2865f8a24e6787605254b9473c5cc5c049723707b47fe29f",
+      "manifest_hash": "9f7e8679e799cd7311ce28788e40d7c62d5a1f9ddc527ddc7d06debcce5839ca"
+    },
+    "signature": {
+      "algorithm": "ECDSA-P256-SHA256",
+      "public_key_jwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "PLACEHOLDER_X_COORDINATE_BASE64URL_43_CHARS_AAAAA",
+        "y": "PLACEHOLDER_Y_COORDINATE_BASE64URL_43_CHARS_BBBBB",
+        "ext": true,
+        "key_ops": [
+          "verify"
+        ]
+      },
+      "signature": "UExBQ0VIT0xERVJfU0lHX05VTExfRklFTERTX05LMDAwM19CQVNFNjRfUExBQ0VIT0xERVJfWFla",
+      "signed_at": "2026-09-05T20:41:11+05:30"
+    },
+    "timestamp": {
+      "device_capture_time": "2026-09-05T20:41:03+05:30",
+      "trusted_timestamp_status": "not_configured",
+      "trusted_timestamp_token": null
+    }
+  },
+  "screenshot_ciphertext": "UExBQ0VIT0xERVJfQUVTX0dDTV9DSVBIRVJURVhUX05VTExfRklFTERTX05LMDAwMw==",
+  "iv": "yv66vv7erb7u3d7e",
+  "created_at": "2026-09-05T20:41:03+05:30",
+  "platform_label": "Unknown",
+  "last_verification": null
+}
