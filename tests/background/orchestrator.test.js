@@ -19,7 +19,11 @@ const getProvider = vi.fn(() => ({ id: "vision", extract }));
 const getSelectedProviderId = vi.fn(async () => "vision");
 const lockEvidence = vi.fn();
 const verifyEvidence = vi.fn();
+const reviseMetadata = vi.fn();
+const normalizeVersions = vi.fn((record) => record?.versions ?? [{ version: 1, origin: "ai" }]);
 const vaultList = vi.fn();
+const vaultGet = vi.fn();
+const vaultGetScreenshot = vi.fn();
 
 vi.mock("../../extension/src/capture/capture.js", () => ({
   captureVisibleTab: (...a) => captureVisibleTab(...a)
@@ -34,12 +38,14 @@ vi.mock("../../extension/src/extraction/provider.js", async () => {
 });
 vi.mock("../../extension/src/evidence/index.js", () => ({
   lockEvidence: (...a) => lockEvidence(...a),
-  verifyEvidence: (...a) => verifyEvidence(...a)
+  verifyEvidence: (...a) => verifyEvidence(...a),
+  reviseMetadata: (...a) => reviseMetadata(...a),
+  normalizeVersions: (...a) => normalizeVersions(...a)
 }));
 vi.mock("../../extension/src/storage/vault-repo.js", () => ({
   list: (...a) => vaultList(...a),
-  get: vi.fn(),
-  getDecryptedScreenshot: vi.fn()
+  get: (...a) => vaultGet(...a),
+  getDecryptedScreenshot: (...a) => vaultGetScreenshot(...a)
 }));
 
 // --- chrome stub ---------------------------------------------------------
@@ -222,6 +228,71 @@ describe("handleMessage routing", () => {
     handleMessage({ type: "LIST_EVIDENCE", payload: {} }, {}, sendResponse);
     await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
     expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true, items: [{ evidence_id: "NK-0001" }] });
+  });
+
+  it("GET_EVIDENCE returns the record plus its version list", async () => {
+    vaultGet.mockResolvedValue({
+      manifest: { integrity: {} },
+      created_at: "2026-09-08T10:00:00+05:30",
+      platform_label: "WhatsApp",
+      last_verification: null,
+      versions: [
+        { version: 1, origin: "ai" },
+        { version: 2, origin: "human" }
+      ]
+    });
+    vaultGetScreenshot.mockResolvedValue(new Blob([new Uint8Array([1, 2, 3])], { type: "image/png" }));
+
+    const sendResponse = vi.fn();
+    handleMessage({ type: "GET_EVIDENCE", payload: { evidence_id: "NK-0001" } }, {}, sendResponse);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    const res = sendResponse.mock.calls[0][0];
+    expect(res.ok).toBe(true);
+    expect(normalizeVersions).toHaveBeenCalledTimes(1);
+    expect(res.versions).toHaveLength(2);
+    expect(res.screenshotDataUrl).toMatch(/^data:image\/png;base64,/);
+  });
+
+  it("REVISE_METADATA routes to reviseMetadata and returns the updated record", async () => {
+    const updated = { evidence_id: "NK-0001", versions: [{ version: 1 }, { version: 2 }] };
+    reviseMetadata.mockResolvedValue(updated);
+
+    const sendResponse = vi.fn();
+    const async = handleMessage(
+      {
+        type: "REVISE_METADATA",
+        payload: { evidence_id: "NK-0001", data: { platform: "WhatsApp" }, note: "fixed the name" }
+      },
+      {},
+      sendResponse
+    );
+    expect(async).toBe(true);
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(reviseMetadata).toHaveBeenCalledWith(
+      "NK-0001",
+      { platform: "WhatsApp" },
+      { note: "fixed the name" }
+    );
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true, record: updated });
+  });
+
+  it("REVISE_METADATA surfaces a failure as { ok: false, error }", async () => {
+    reviseMetadata.mockRejectedValue(new Error("signing key unavailable"));
+
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "REVISE_METADATA", payload: { evidence_id: "NK-0001", data: {} } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(sendResponse.mock.calls[0][0]).toEqual({
+      ok: false,
+      error: "signing key unavailable"
+    });
   });
 
   it("ignores unknown message types", () => {
