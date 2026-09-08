@@ -300,7 +300,6 @@ async function handleExtract(req, res, bodyString) {
     );
   } catch (fetchError) {
     clearTimeout(timeoutId);
-    const duration = Date.now() - startTime;
 
     if (fetchError.name === "AbortError") {
       console.error(`[${new Date().toISOString()}] POST /extract - OpenRouter request timed out after ${REQUEST_TIMEOUT_MS}ms`);

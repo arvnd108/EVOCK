@@ -18,7 +18,7 @@
  * drops it entirely.
  */
 
-import { encryptBlob, decryptBlob, getVaultKey } from "../crypto/encrypt.js";
+import { decryptBlob, encryptBlob, getVaultKey } from "../crypto/encrypt.js";
 import {
   openDb,
   requestToPromise,

@@ -4,7 +4,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { __tamperDemo } from "../../extension/src/verify/tamper-demo.js";
-import { verifyEvidence, VERIFY_DETAILS } from "../../extension/src/verify/verifier.js";
+import { VERIFY_DETAILS, verifyEvidence } from "../../extension/src/verify/verifier.js";
 import { lockEvidence } from "../../extension/src/evidence/lock-evidence.js";
 import {
   closeDb,

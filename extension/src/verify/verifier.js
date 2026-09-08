@@ -17,7 +17,7 @@
  * refused).
  */
 
-import { getVaultKey, decryptBlob } from "../crypto/encrypt.js";
+import { decryptBlob, getVaultKey } from "../crypto/encrypt.js";
 import { sha256Bytes, sha256Canonical } from "../crypto/hash.js";
 import { inspectManifestSignature } from "../crypto/sign.js";
 import { reduceManifestForHashing } from "../evidence/manifest-builder.js";

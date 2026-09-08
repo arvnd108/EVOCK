@@ -378,8 +378,7 @@ describe("inspectManifestSignature — classifies why a signature failed", () =>
 
   it("returns key_malformed for a broken JWK, invalid for a wrong signature", async () => {
     const { inspectManifestSignature } = await import("../../extension/src/crypto/sign.js");
-    const { privateKey, publicKey } = await getSigningKeyPair();
-    const jwk = await crypto.subtle.exportKey("jwk", publicKey);
+    const { privateKey } = await getSigningKeyPair();
     const sig = await signManifestHash(manifestHash, privateKey);
 
     expect((await inspectManifestSignature(manifestHash, sig, { kty: "EC", crv: "P-256" })).reason).toBe(

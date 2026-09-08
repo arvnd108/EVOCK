@@ -21,7 +21,7 @@
 
 import { getSigningKeyPair, getSigningPublicKeyJwk } from "../crypto/keystore.js";
 import { encryptBlob, getVaultKey } from "../crypto/encrypt.js";
-import { dataUrlToBytes, bytesToBase64, sha256Bytes } from "../crypto/hash.js";
+import { bytesToBase64, dataUrlToBytes, sha256Bytes } from "../crypto/hash.js";
 import { signManifestHash } from "../crypto/sign.js";
 import { attachSignature, buildManifest } from "./manifest-builder.js";
 import { nextEvidenceId } from "../shared/ids.js";
