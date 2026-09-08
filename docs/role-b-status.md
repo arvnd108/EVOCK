@@ -1,8 +1,9 @@
 # Role B — Evidence Core: status and handoff
 
-**Branch:** `feat/role-b/test-foundation` (13 commits off `main`, not yet pushed)
-**Tests:** `npm test` → 291 passing, 0 failing, across `tests/{evidence,crypto,storage,verify}`
-**Files touched:** new modules only. No Role A file modified.
+**Merged:** PR #2 (`feat/role-b/test-foundation`) → `main` at `2444787`.
+**Follow-up:** `feat/role-b/role-c-contract-additions` — two additive output-shape widenings for Role C (step 11).
+**Tests:** `npm test` green; 310 on the Role B + Role A base, 385 with Role C's branch merged in.
+**Files touched:** new modules, plus additive edits to `verifier.js` / `vault-repo.js` / `shared/types.js`. No Role A file modified.
 
 ---
 
@@ -24,7 +25,8 @@ import {
 
 ```js
 import * as vaultRepo from "./storage/vault-repo.js";
-// list({ sort, filter }) · get(id) · getDecryptedScreenshot(id) -> Blob
+// list({ sort, filter }) -> VaultListItem[] (metadata only, incl. contact_label)
+// get(id) · getDecryptedScreenshot(id) -> Blob
 // updateVerification(id, result) · remove(id) · count() · VaultQuotaError
 ```
 
@@ -85,16 +87,31 @@ RECORD_NOT_FOUND:    "record not found"
 `status` is `VERIFIED` (all four checks pass), `MODIFIED` (a comparison failed),
 or `ERROR` (a check could not be evaluated). `details` is `[]` only on `VERIFIED`.
 
+### Additive fields (step 11 — post-freeze, `1.0` → `1.1`-style, no migration)
+
+Both are purely additive: no field removed or retyped, no hashed input changed,
+no stored record rewritten (`last_verification` is stored but never hashed).
+
+- **`VerificationResult.current_integrity`** — `{ screenshot_hash, metadata_hash,
+  manifest_hash }`, each the hash **recomputed this run** or `null` where the
+  check could not be evaluated. Present on every return path (happy, `MODIFIED`,
+  `ERROR`, both early returns). Role C's MODIFIED panel pairs it against
+  `manifest.integrity.*` (spec §18).
+- **`VaultListItem.contact_label`** — the AI-derived contact name in the `list()`
+  projection, `null` when extraction failed or the model returned no contact.
+  Still metadata-only; it is a short string already in the deserialised record.
+
 ---
 
 ## 4. Contract deviations to reconcile with Role A
 
 | # | Issue | Proposed resolution | Status |
 |---|---|---|---|
-| A | `service-worker.js` catch block emits `provider: "unknown"`; §5.2 says `"demo" \| "vision"`. This value is hashed into `metadata_hash`. | Failed path emits the attempted provider id (or `"vision"`), `status: "failed"`. `manifest-builder` passes the value through unchanged either way. | **Open — needs Role A** |
-| B | Building Plan §5.6 / `shared/messages.js` `PRESERVE_STAGES` list is `capture, extract, hash, sign, timestamp, encrypt, store`. The IV must be inside the signed manifest, so the real order is `hash, encrypt, sign, timestamp, store`. | Edit `PRESERVE_STAGES` and the popup checklist labels to `capture, extract, hash, encrypt, sign, timestamp, store`. | **Open — needs Role A** |
-| C | `tests/fixtures/capture.sample.json` / `extraction.ok.sample.json` were written by Role B from Role A's output shapes. | Role A to confirm field-for-field against current `capture.js` / `schema.js`. Re-checked at step 06 — still matches. | **Low risk — confirm** |
-| D | `shared/types.js` is shared-ownership (Building Plan §6) but was authored solo by Role B in step 00. It only transcribes the frozen §5.1–§5.5 typedefs. | Role A + Role C review and approve. | **Open — needs review** |
+| A | `service-worker.js` emitted `provider: "unknown"` (outside §5.2). | Role A A7: `toFailedResult()` now emits a contract-valid provider id. | **Resolved (`cff7c9b`)** |
+| B | `PRESERVE_STAGES` order did not match `lockEvidence`'s real emit order. | Role A A7: reordered to `capture, extract, hash, encrypt, sign, timestamp, store`. | **Resolved (`cff7c9b`)** |
+| C | Capture / extraction fixtures authored by Role B from Role A's shapes. | Role A A7: re-checked field-for-field — exact. | **Resolved (`cff7c9b`)** |
+| D | `shared/types.js` authored solo by Role B in step 00 (shared-ownership). | Role A A7: reviewed and accepted. | **Resolved (`cff7c9b`)** |
+| E | Step 11: `current_integrity` + `contact_label` added post-freeze. | Purely additive; land as one small PR that Role A and Role C approve. | **Open — group PR** |
 
 ---
 
@@ -196,6 +213,5 @@ scope for the MVP; tracked here.
 
 ## 7. Outstanding
 
-- Push `feat/role-b/test-foundation` and open the PR (held per instruction).
-- Apply the §5 `service-worker.js` diff with Role A (pair-work, Building Plan §7).
-- Land deviations A, B, D above.
+- Land the step-11 additive fields (`current_integrity`, `contact_label`) as one
+  group PR alongside Role C's branch — deviation E.

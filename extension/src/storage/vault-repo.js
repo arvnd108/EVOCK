@@ -48,15 +48,22 @@ export class VaultQuotaError extends Error {
 }
 
 /**
- * Fields `list()` exposes. Deliberately excludes `screenshot_ciphertext` and
- * `iv`.
+ * Fields `list()` exposes — see `VaultListItem` in shared/types.js. Deliberately
+ * excludes `screenshot_ciphertext` and `iv`; everything here is a scalar or a
+ * small sub-object already present in the deserialised record.
+ *
+ * `contact_label` is the AI-derived contact name (Role C's timeline row). It is
+ * `null` when extraction failed or the model returned no contact.
+ *
  * @param {import("../shared/types.js").StoredEvidenceRecord} record
+ * @returns {import("../shared/types.js").VaultListItem}
  */
 function projectListItem(record) {
   return {
     evidence_id: record.evidence_id,
     created_at: record.created_at,
     platform_label: record.platform_label,
+    contact_label: record.manifest?.ai_derived_metadata?.data?.contact_name ?? null,
     source: record.manifest?.source ?? null,
     capture: record.manifest?.capture ?? null,
     extraction_status: record.manifest?.ai_derived_metadata?.status ?? null,
@@ -151,7 +158,7 @@ export async function get(evidence_id) {
  * List record metadata, newest first by default.
  *
  * @param {{ sort?: "newest"|"oldest", filter?: { platform_label?: string } }} [options]
- * @returns {Promise<Array<ReturnType<typeof projectListItem>>>}
+ * @returns {Promise<import("../shared/types.js").VaultListItem[]>}
  */
 export async function list({ sort = "newest", filter } = {}) {
   const db = await openDb();

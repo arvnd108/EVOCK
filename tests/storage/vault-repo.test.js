@@ -186,6 +186,7 @@ describe("list — metadata only", () => {
     expect(Object.keys(item).sort()).toEqual(
       [
         "capture",
+        "contact_label",
         "created_at",
         "evidence_id",
         "extraction_status",
@@ -215,10 +216,31 @@ describe("list — metadata only", () => {
     const serialised = JSON.stringify(items);
     expect(serialised).not.toContain("screenshot_ciphertext");
     for (const item of items) {
+      expect(item).toHaveProperty("contact_label");
       for (const value of Object.values(item)) {
         expect(value instanceof ArrayBuffer).toBe(false);
       }
     }
+  });
+
+  it("carries the AI-derived contact name, or null when there is none", async () => {
+    const named = await makeRecord();
+    named.record.manifest.ai_derived_metadata.data.contact_name = "Mr. ABC B";
+    await put(named.record);
+
+    const failed = await makeRecord({ platform_label: "Unknown" });
+    failed.record.manifest.ai_derived_metadata = {
+      provider: "vision",
+      model: null,
+      status: "failed",
+      extracted_at: null,
+      data: null
+    };
+    await put(failed.record);
+
+    const byId = Object.fromEntries((await list()).map((i) => [i.evidence_id, i]));
+    expect(byId["NK-0001"].contact_label).toBe("Mr. ABC B");
+    expect(byId["NK-0002"].contact_label).toBeNull();
   });
 
   it("sorts newest first by default and oldest first on request", async () => {
