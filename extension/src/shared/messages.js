@@ -20,7 +20,12 @@ export const MSG = Object.freeze({
   PRESERVE_PROGRESS: "PRESERVE_PROGRESS",
   /** vault -> worker: list stored records without ciphertext. -> StoredEvidenceRecord[] */
   LIST_EVIDENCE: "LIST_EVIDENCE",
-  /** vault -> worker: one record + decrypted screenshot object URL. payload: { evidence_id } */
+  /**
+   * vault -> worker: one record + decrypted screenshot data URL + versions[].
+   * payload: { evidence_id, for_export? }. With `for_export: true` the response
+   * also carries `screenshot_ciphertext` / `iv` as base64 for the ZIP export
+   * (Role C step 07); the AES-GCM key is never included.
+   */
   GET_EVIDENCE: "GET_EVIDENCE",
   /** vault -> worker: recompute hashes + check signature. payload: { evidence_id } -> VerificationResult */
   VERIFY_EVIDENCE: "VERIFY_EVIDENCE",

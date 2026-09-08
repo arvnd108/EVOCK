@@ -10,14 +10,7 @@ import { reviseMetadata } from "../../extension/src/evidence/revise-metadata.js"
 import { verifyEvidence } from "../../extension/src/verify/verifier.js";
 import { lockEvidence } from "../../extension/src/evidence/lock-evidence.js";
 import * as vaultRepo from "../../extension/src/storage/vault-repo.js";
-import {
-  closeDb,
-  DB_NAME,
-  openDb,
-  requestToPromise,
-  STORE_EVIDENCE,
-  txDone
-} from "../../extension/src/storage/db.js";
+import { closeDb, DB_NAME } from "../../extension/src/storage/db.js";
 import { loadFixture } from "../helpers/fixtures.js";
 
 async function resetVault() {

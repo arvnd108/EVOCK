@@ -828,3 +828,68 @@
   color: var(--nk-text);
   cursor: pointer;
 }
+
+/* --- Export menu (step 07 / C6) --------------------------------------- */
+.nk-export {
+  margin-top: var(--nk-space-4);
+  padding: var(--nk-space-4);
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius);
+  background: var(--nk-surface);
+}
+
+.nk-export__title {
+  margin: 0 0 var(--nk-space-2);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nk-export__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-2);
+}
+
+.nk-export__btn {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-text);
+  cursor: pointer;
+}
+
+.nk-export__btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.nk-export__close {
+  margin-left: auto;
+}
+
+.nk-export__note {
+  margin: var(--nk-space-2) 0 0;
+  font-size: 12px;
+  color: var(--nk-text-muted);
+}
+
+.nk-export__status {
+  margin: var(--nk-space-2) 0 0;
+  font-size: 12px;
+  min-height: 1em;
+}
+
+.nk-export__status[data-kind="working"] {
+  color: var(--nk-text-muted);
+}
+
+.nk-export__status[data-kind="done"] {
+  color: var(--nk-ok);
+}
+
+.nk-export__status[data-kind="error"] {
+  color: var(--nk-bad);
+}
