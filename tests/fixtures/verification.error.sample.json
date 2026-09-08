@@ -1,0 +1,9 @@
+{
+  "screenshot_hash_ok": false,
+  "metadata_hash_ok": true,
+  "manifest_hash_ok": true,
+  "signature_ok": true,
+  "status": "ERROR",
+  "details": ["decryption failed"],
+  "verified_at": "2026-09-08T10:15:02+05:30"
+}

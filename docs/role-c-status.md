@@ -1,8 +1,53 @@
 # Role C — Presentation, Export & Platform: status
 
 **Step 00 — Build pipeline, lint, project scripts (C1):** complete.
-**Tests:** `npm test` → 303 passing. `python3 tests/run-tests.py` → 20/20.
+**Step 01 — Fixture set (C2):** complete.
+**Tests:** `npm test` → 319 passing (303 + 16 new). `python3 tests/run-tests.py` → 20/20.
 `python3 tests/bridge-and-vision.test.py` → 10/10. `npm run lint` → 0 errors, 0 warnings.
+
+---
+
+## Step 01 — Fixture set (C2)
+
+### Added
+
+| File | Shape | Notes |
+|---|---|---|
+| `tests/fixtures/verification.ok.sample.json` | `VerificationResult` §5.5 | `VERIFIED`, four `*_ok` true, `details: []` |
+| `tests/fixtures/verification.modified.sample.json` | `VerificationResult` | the §18 tamper payoff — `MODIFIED`, screenshot ok, metadata/manifest/signature failed, `details` = the three frozen constants |
+| `tests/fixtures/verification.error.sample.json` | `VerificationResult` | `ERROR` from an *unevaluable* check (`decryption failed`); metadata/manifest/signature still `true` — proves `ERROR` ≠ all-false and ≠ `MODIFIED` |
+| `tests/fixtures/record.failed-extraction.sample.json` | `StoredEvidenceRecord` §5.4 | `ai_derived_metadata.status: "failed"`, `data: null`, `platform_label: "Unknown"`; hashes + signature + encryption intact |
+| `tests/fixtures/record.null-fields.sample.json` | `StoredEvidenceRecord` | extraction `ok` but `data.platform` / `contact_name` / `visible_time` / `date` all `null`, `messages: []` |
+| `tests/fixtures/vault.50.sample.json` | `Array<projectListItem>` | 50 items, **newest-first** (matches `list()`'s default `sort: "newest"`), 10 calendar days, 4 platforms, verification mix (never / stale / verified / modified). No ciphertext, no `iv`, no screenshot bytes. |
+| `tests/helpers/make-vault.js` | — | `makeVaultList(n=50)` — deterministic generator; the committed `vault.50` is its `n=50` output. Regenerate after editing: `node --input-type=module -e "import('./tests/helpers/make-vault.js').then(m=>require('fs').writeFileSync('tests/fixtures/vault.50.sample.json', JSON.stringify(m.makeVaultList(50),null,2)+'\n'))"` |
+| `tests/helpers/ui-fixtures.js` | — | `loadUiFixture(name)`, `decodeRecord(fixture)` (base64 → `ArrayBuffer`, drops `_note`, non-mutating), `SCREENSHOT_PNG_DATA_URL` |
+| `tests/ui-fixtures.test.js` | — | 16 contract checks; verification detail strings asserted against the **imported** `VERIFY_DETAILS`, never a copy |
+
+Existing five fixtures untouched. `.sample.json` naming kept.
+
+### Contract finding — raise with Role B before step 03
+
+`Role C.md` §C2/§C3 assume `vaultRepo.list()` returns a **contact** field (the timeline row
+shows `NK-0003  WhatsApp  Mr. ABC B  ✓ Verified`). Role B's real `projectListItem`
+(`extension/src/storage/vault-repo.js`) returns **no contact** —
+`{ evidence_id, created_at, platform_label, source, capture, extraction_status, last_verification }`.
+The AI-derived `contact_name` lives in `manifest.ai_derived_metadata.data.contact_name`, which
+`list()` does not project.
+
+`vault.50.sample.json` and `make-vault.js` mirror the **real** projection and add no
+`contact_label`. Step 03 needs one of:
+1. Role B adds `contact_label` (or the whole `ai_derived_metadata.data`) to `projectListItem`; or
+2. the timeline drops the contact column and shows it only in the detail view; or
+3. the vault page fetches contact per-row lazily (defeats the "metadata only" goal at scale).
+
+Recommend option 1 — a single string field, cheap, and it keeps the timeline useful. This is a
+Role B contract change (3-approver PR), not a Role C local fix.
+
+### `verified_at` dates
+
+All verification fixtures use `2026-09-08` (the current project date) as "now" so a UI that
+computes verification staleness has a stable reference. `make-vault.js` stale rows verify on the
+capture day; recent rows verify 2026-09-07 / -08.
 
 ---
 
@@ -108,5 +153,5 @@ the bundler lands (step 07 forcing function), that line changes to "select `dist
 
 ## Not yet started
 
-Steps 01–08: fixtures, demo page, vault shell + timeline, detail view, verification UI,
+Steps 02–08: demo page, vault shell + timeline, detail view, verification UI,
 human review/edit, export, integration tests + copy audit.

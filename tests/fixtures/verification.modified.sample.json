@@ -1,0 +1,9 @@
+{
+  "screenshot_hash_ok": true,
+  "metadata_hash_ok": false,
+  "manifest_hash_ok": false,
+  "signature_ok": false,
+  "status": "MODIFIED",
+  "details": ["metadata hash mismatch", "manifest hash mismatch", "signature invalid"],
+  "verified_at": "2026-09-08T10:14:37+05:30"
+}
