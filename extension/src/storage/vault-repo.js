@@ -48,6 +48,37 @@ export class VaultQuotaError extends Error {
 }
 
 /**
+ * Maximum number of passphrase-protected copies of one record that may be
+ * downloaded. This bounds only the WRAPPED export (crypto/passphrase.js) —
+ * the plain PDF/ZIP export is unlimited, since it carries no secret to
+ * over-expose. Persisted per evidence_id in `settings`, so it survives closing
+ * the vault, restarting the browser, or reopening the record later — a
+ * counter kept only in page memory would reset the moment the tab closed.
+ */
+export const PASSPHRASE_EXPORT_LIMIT = 3;
+
+/**
+ * Thrown by `recordPassphraseExport` once a record has reached
+ * `PASSPHRASE_EXPORT_LIMIT`. The count is NOT incremented past the limit.
+ */
+export class PassphraseExportLimitError extends Error {
+  constructor(evidence_id, limit = PASSPHRASE_EXPORT_LIMIT) {
+    super(
+      `${evidence_id}: a passphrase-protected copy has already been downloaded ${limit} ` +
+        "times, which is the maximum. The plain (unwrapped) export has no such limit."
+    );
+    this.name = "PassphraseExportLimitError";
+    this.evidence_id = evidence_id;
+    this.limit = limit;
+  }
+}
+
+/** @param {string} evidence_id @returns {string} */
+function passphraseExportCountKey(evidence_id) {
+  return `passphrase_export_count:${evidence_id}`;
+}
+
+/**
  * Fields `list()` exposes — see `VaultListItem` in shared/types.js. Deliberately
  * excludes `screenshot_ciphertext` and `iv`; everything here is a scalar or a
  * small sub-object already present in the deserialised record.
@@ -320,6 +351,68 @@ export async function count() {
   return requestToPromise(
     db.transaction(STORE_EVIDENCE, "readonly").objectStore(STORE_EVIDENCE).count()
   );
+}
+
+/**
+ * Read-only: how many passphrase-protected copies of this record have been
+ * downloaded so far, and how many remain. Does not consume an attempt — call
+ * this to render "2 of 3 used" before the user commits to anything.
+ *
+ * @param {string} evidence_id
+ * @param {{ limit?: number }} [options]
+ * @returns {Promise<{ count: number, remaining: number, limit: number }>}
+ */
+export async function getPassphraseExportStatus(evidence_id, { limit = PASSPHRASE_EXPORT_LIMIT } = {}) {
+  const db = await openDb();
+  const row = await requestToPromise(
+    db
+      .transaction(STORE_SETTINGS, "readonly")
+      .objectStore(STORE_SETTINGS)
+      .get(passphraseExportCountKey(evidence_id))
+  );
+  const value = row?.value;
+  const current = Number.isInteger(value) && value >= 0 ? value : 0;
+  return { count: current, remaining: Math.max(0, limit - current), limit };
+}
+
+/**
+ * Atomically consume one of the `limit` passphrase-protected export downloads
+ * allowed for this record. Read and increment happen in the SAME readwrite
+ * transaction, so two calls racing from different tabs cannot both read the
+ * same count and both be let through past the limit.
+ *
+ * Call this ONLY after the wrapped file has actually been handed to
+ * `chrome.downloads` — it counts downloads, not attempts that later failed to
+ * save.
+ *
+ * @param {string} evidence_id
+ * @param {{ limit?: number }} [options]
+ * @returns {Promise<{ count: number, remaining: number, limit: number }>}
+ * @throws {PassphraseExportLimitError} if the record already reached `limit`
+ */
+export async function recordPassphraseExport(evidence_id, { limit = PASSPHRASE_EXPORT_LIMIT } = {}) {
+  const db = await openDb();
+  const tx = db.transaction(STORE_SETTINGS, "readwrite");
+  const store = tx.objectStore(STORE_SETTINGS);
+  const key = passphraseExportCountKey(evidence_id);
+
+  try {
+    const row = await requestToPromise(store.get(key));
+    const value = row?.value;
+    const current = Number.isInteger(value) && value >= 0 ? value : 0;
+
+    if (current >= limit) {
+      throw new PassphraseExportLimitError(evidence_id, limit);
+    }
+
+    const next = current + 1;
+    await requestToPromise(store.put({ key, value: next }));
+    await txDone(tx);
+    return { count: next, remaining: Math.max(0, limit - next), limit };
+  } catch (error) {
+    safeAbort(tx);
+    throw error;
+  }
 }
 
 /**

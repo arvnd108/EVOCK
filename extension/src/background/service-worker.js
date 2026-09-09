@@ -394,6 +394,32 @@ export function handleMessage(message, _sender, sendResponse) {
       );
       return true;
 
+    case MSG.GET_PASSPHRASE_EXPORT_STATUS:
+      // Read-only — lets the export panel show "2 of 3 used" before the user
+      // commits to anything. Never consumes an attempt.
+      vaultRepo.getPassphraseExportStatus(message.payload?.evidence_id).then(
+        ({ count, remaining, limit }) => sendResponse({ ok: true, count, remaining, limit }),
+        (err) =>
+          sendResponse({ ok: false, error: err?.message || "Could not read the export status." })
+      );
+      return true;
+
+    case MSG.RECORD_PASSPHRASE_EXPORT:
+      // Called by the export panel ONLY after chrome.downloads has the file —
+      // this counts downloads, not attempts. vaultRepo enforces the limit
+      // atomically, so a raced call from a second tab cannot slip past it.
+      vaultRepo.recordPassphraseExport(message.payload?.evidence_id).then(
+        ({ count, remaining, limit }) => sendResponse({ ok: true, count, remaining, limit }),
+        (err) => {
+          if (err?.name === "PassphraseExportLimitError") {
+            sendResponse({ ok: false, error: err.message, limitReached: true, limit: err.limit });
+          } else {
+            sendResponse({ ok: false, error: err?.message || "Could not record the export." });
+          }
+        }
+      );
+      return true;
+
     default:
       return false;
   }

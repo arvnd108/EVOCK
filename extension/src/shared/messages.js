@@ -42,7 +42,21 @@ export const MSG = Object.freeze({
   /** vault -> worker: permanently delete every record. payload: {} -> { ok }. The id counter is not reset — ids are never reused. */
   CLEAR_VAULT: "CLEAR_VAULT",
   /** vault -> worker: dev-build-only tamper harness. payload: { evidence_id, mode } -> { ok } */
-  TAMPER_DEMO: "TAMPER_DEMO"
+  TAMPER_DEMO: "TAMPER_DEMO",
+  /**
+   * vault -> worker: read-only. How many passphrase-protected copies of this
+   * record have been downloaded, without consuming an attempt.
+   * payload: { evidence_id } -> { ok, count, remaining, limit }
+   */
+  GET_PASSPHRASE_EXPORT_STATUS: "GET_PASSPHRASE_EXPORT_STATUS",
+  /**
+   * vault -> worker: atomically consume one of the limited passphrase-wrapped
+   * export downloads for this record. Call ONLY after the wrapped file has
+   * actually been handed to chrome.downloads — this counts downloads, not
+   * attempts. payload: { evidence_id } -> { ok, count, remaining, limit } or,
+   * once the limit is reached, { ok: false, error, limitReached: true }.
+   */
+  RECORD_PASSPHRASE_EXPORT: "RECORD_PASSPHRASE_EXPORT"
   //
   // Retired (Role A Prompts/13, Task B): EXPORT_PDF / EXPORT_PACKAGE.
   // Export generation runs on the vault page (Role C

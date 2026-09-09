@@ -8,8 +8,12 @@ import {
   count,
   get,
   getDecryptedScreenshot,
+  getPassphraseExportStatus,
   list,
+  PASSPHRASE_EXPORT_LIMIT,
+  PassphraseExportLimitError,
   put,
+  recordPassphraseExport,
   remove,
   updateVerification,
   VaultQuotaError
@@ -440,5 +444,83 @@ describe("resilience", () => {
     expect(item.source).toBeNull();
     expect(item.capture).toBeNull();
     expect(item.extraction_status).toBeNull();
+  });
+});
+
+describe("getPassphraseExportStatus / recordPassphraseExport — per-record download limit", () => {
+  it("starts at 0 of the limit for a record nobody has exported yet", async () => {
+    const status = await getPassphraseExportStatus("NK-0001");
+    expect(status).toEqual({ count: 0, remaining: PASSPHRASE_EXPORT_LIMIT, limit: PASSPHRASE_EXPORT_LIMIT });
+  });
+
+  it("increments atomically and getStatus reflects it without consuming an attempt", async () => {
+    const first = await recordPassphraseExport("NK-0001");
+    expect(first).toEqual({ count: 1, remaining: PASSPHRASE_EXPORT_LIMIT - 1, limit: PASSPHRASE_EXPORT_LIMIT });
+
+    // Reading status again does not change anything.
+    const status = await getPassphraseExportStatus("NK-0001");
+    expect(status.count).toBe(1);
+    const statusAgain = await getPassphraseExportStatus("NK-0001");
+    expect(statusAgain.count).toBe(1);
+  });
+
+  it("allows exactly the default limit, then throws PassphraseExportLimitError without incrementing further", async () => {
+    for (let i = 1; i <= PASSPHRASE_EXPORT_LIMIT; i++) {
+      const result = await recordPassphraseExport("NK-0001");
+      expect(result.count).toBe(i);
+    }
+    expect((await getPassphraseExportStatus("NK-0001")).remaining).toBe(0);
+
+    await expect(recordPassphraseExport("NK-0001")).rejects.toThrow(PassphraseExportLimitError);
+    await expect(recordPassphraseExport("NK-0001")).rejects.toThrow(/already been downloaded 3/);
+
+    // The failed attempt must not have bumped the counter past the limit.
+    const status = await getPassphraseExportStatus("NK-0001");
+    expect(status.count).toBe(PASSPHRASE_EXPORT_LIMIT);
+    expect(status.remaining).toBe(0);
+  });
+
+  it("tracks the count independently per evidence_id", async () => {
+    await recordPassphraseExport("NK-0001");
+    await recordPassphraseExport("NK-0001");
+    await recordPassphraseExport("NK-0002");
+
+    expect((await getPassphraseExportStatus("NK-0001")).count).toBe(2);
+    expect((await getPassphraseExportStatus("NK-0002")).count).toBe(1);
+    expect((await getPassphraseExportStatus("NK-0003")).count).toBe(0);
+  });
+
+  it("supports a custom limit without touching the exported default", async () => {
+    const custom = { limit: 1 };
+    const first = await recordPassphraseExport("NK-0001", custom);
+    expect(first).toEqual({ count: 1, remaining: 0, limit: 1 });
+    await expect(recordPassphraseExport("NK-0001", custom)).rejects.toThrow(PassphraseExportLimitError);
+
+    // The default-limit view of the SAME record now looks over-limit too,
+    // since the count itself is shared — only the ceiling differs per call.
+    const defaultView = await getPassphraseExportStatus("NK-0001");
+    expect(defaultView.count).toBe(1);
+    expect(defaultView.limit).toBe(PASSPHRASE_EXPORT_LIMIT);
+  });
+
+  it("PassphraseExportLimitError carries the evidence_id and limit for callers to branch on", async () => {
+    for (let i = 0; i < PASSPHRASE_EXPORT_LIMIT; i++) await recordPassphraseExport("NK-0001");
+    try {
+      await recordPassphraseExport("NK-0001");
+      throw new Error("expected recordPassphraseExport to throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(PassphraseExportLimitError);
+      expect(err.evidence_id).toBe("NK-0001");
+      expect(err.limit).toBe(PASSPHRASE_EXPORT_LIMIT);
+    }
+  });
+
+  it("survives a fresh db connection — the count is durable, not in-memory", async () => {
+    await recordPassphraseExport("NK-0001");
+    await recordPassphraseExport("NK-0001");
+    await closeDb(); // simulates the worker restarting / the page reopening
+
+    const status = await getPassphraseExportStatus("NK-0001");
+    expect(status.count).toBe(2);
   });
 });

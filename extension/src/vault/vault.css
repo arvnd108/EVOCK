@@ -991,3 +991,54 @@
 .nk-export__status[data-kind="error"] {
   color: var(--nk-bad);
 }
+
+/* --- Passphrase-wrapped copy: separate, opt-in third export option ----- */
+.nk-export__enc {
+  margin-top: var(--nk-space-4);
+  padding-top: var(--nk-space-4);
+  border-top: 1px dashed var(--nk-border);
+}
+
+.nk-export__enc-title {
+  margin: 0 0 var(--nk-space-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nk-export__enc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-2);
+  align-items: center;
+}
+
+.nk-export__enc-select,
+.nk-export__enc-input {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--nk-border);
+  border-radius: var(--nk-radius-sm);
+  background: var(--nk-surface);
+  color: var(--nk-text);
+}
+
+.nk-export__enc-input {
+  min-width: 12ch;
+}
+
+.nk-export__enc-input:disabled,
+.nk-export__enc-select:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.nk-export__enc-limit {
+  margin: var(--nk-space-2) 0;
+  font-size: 12px;
+  color: var(--nk-text-muted);
+}
+
+.nk-export__enc-limit[data-kind="error"] {
+  color: var(--nk-bad);
+}

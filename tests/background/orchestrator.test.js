@@ -26,6 +26,8 @@ const vaultGet = vi.fn();
 const vaultGetScreenshot = vi.fn();
 const vaultRemove = vi.fn();
 const vaultClear = vi.fn();
+const vaultGetPassphraseExportStatus = vi.fn();
+const vaultRecordPassphraseExport = vi.fn();
 
 vi.mock("../../extension/src/capture/capture.js", () => ({
   captureVisibleTab: (...a) => captureVisibleTab(...a)
@@ -49,7 +51,9 @@ vi.mock("../../extension/src/storage/vault-repo.js", () => ({
   get: (...a) => vaultGet(...a),
   getDecryptedScreenshot: (...a) => vaultGetScreenshot(...a),
   remove: (...a) => vaultRemove(...a),
-  clear: (...a) => vaultClear(...a)
+  clear: (...a) => vaultClear(...a),
+  getPassphraseExportStatus: (...a) => vaultGetPassphraseExportStatus(...a),
+  recordPassphraseExport: (...a) => vaultRecordPassphraseExport(...a)
 }));
 
 // --- chrome stub ---------------------------------------------------------
@@ -372,6 +376,83 @@ describe("handleMessage routing", () => {
     handleMessage({ type: "CLEAR_VAULT", payload: {} }, {}, sendResponse);
     await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
     expect(sendResponse.mock.calls[0][0]).toEqual({ ok: false, error: "clear failed" });
+  });
+
+  it("GET_PASSPHRASE_EXPORT_STATUS delegates to vaultRepo.getPassphraseExportStatus", async () => {
+    vaultGetPassphraseExportStatus.mockResolvedValue({ count: 1, remaining: 2, limit: 3 });
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "GET_PASSPHRASE_EXPORT_STATUS", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(vaultGetPassphraseExportStatus).toHaveBeenCalledWith("NK-0001");
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true, count: 1, remaining: 2, limit: 3 });
+  });
+
+  it("GET_PASSPHRASE_EXPORT_STATUS surfaces a failure as { ok: false, error }", async () => {
+    vaultGetPassphraseExportStatus.mockRejectedValue(new Error("db unavailable"));
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "GET_PASSPHRASE_EXPORT_STATUS", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: false, error: "db unavailable" });
+  });
+
+  it("RECORD_PASSPHRASE_EXPORT delegates to vaultRepo.recordPassphraseExport", async () => {
+    vaultRecordPassphraseExport.mockResolvedValue({ count: 2, remaining: 1, limit: 3 });
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "RECORD_PASSPHRASE_EXPORT", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(vaultRecordPassphraseExport).toHaveBeenCalledWith("NK-0001");
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: true, count: 2, remaining: 1, limit: 3 });
+  });
+
+  it("RECORD_PASSPHRASE_EXPORT reports a limit-reached error distinctly from a generic failure", async () => {
+    // Regression guard: the popup/vault UI branches on `limitReached` to show
+    // "maximum reached" rather than a generic transport-error message.
+    const limitError = new Error("NK-0001: already downloaded 3 times, which is the maximum.");
+    limitError.name = "PassphraseExportLimitError";
+    limitError.limit = 3;
+    vaultRecordPassphraseExport.mockRejectedValue(limitError);
+
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "RECORD_PASSPHRASE_EXPORT", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(sendResponse.mock.calls[0][0]).toEqual({
+      ok: false,
+      error: limitError.message,
+      limitReached: true,
+      limit: 3
+    });
+  });
+
+  it("RECORD_PASSPHRASE_EXPORT surfaces a non-limit failure as a generic { ok: false, error }", async () => {
+    vaultRecordPassphraseExport.mockRejectedValue(new Error("db unavailable"));
+    const sendResponse = vi.fn();
+    handleMessage(
+      { type: "RECORD_PASSPHRASE_EXPORT", payload: { evidence_id: "NK-0001" } },
+      {},
+      sendResponse
+    );
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalled());
+
+    expect(sendResponse.mock.calls[0][0]).toEqual({ ok: false, error: "db unavailable" });
   });
 
   it("ignores unknown message types", () => {
